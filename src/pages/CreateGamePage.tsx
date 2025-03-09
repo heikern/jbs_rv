@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'; // added import
 import GameList from '../components/GameList'; // assuming this component exists
-import useColyseus from '../hooks/useColyseusConnection';
 import type { Adventure } from '../types/storyTypes';
 import type { RootState } from '../store';
+import { ColyseusProvider, useColyseus } from '../contexts/ColyseusContext';
 
-const CreateGamePage: React.FC = () => {
+function CreateGameContent() {
   const [players, setPlayers] = useState<number | null>(null);
   const [inputValue, setInputValue] = useState('');
 
-  const { createRoom } = useColyseus(); // updated hook function
+  // Move hook call to the top level
+  const { joinRoom } = useColyseus();
+  const navigate = useNavigate(); // added navigation hook
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +34,7 @@ const CreateGamePage: React.FC = () => {
       {/* Fixed back button */}
       <div className="fixed top-0 left-0 w-full p-4 z-10">
         <button
-          onClick={() => (window.location.href = '/')}
+          onClick={() => navigate('/')} // modified navigation
           className="bg-gray-500 text-white px-4 py-2 rounded"
         >
           Back
@@ -55,7 +58,7 @@ const CreateGamePage: React.FC = () => {
               <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                 Confirm
               </button>
-              <button type="button" onClick={() => (window.location.href = '/')} className="bg-gray-500 text-white px-4 py-2 rounded">
+              <button type="button" onClick={() => navigate('/')} className="bg-gray-500 text-white px-4 py-2 rounded">
                 Cancel
               </button>
             </div>
@@ -76,13 +79,12 @@ const CreateGamePage: React.FC = () => {
                   className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
                   onClick={async () => {
                     try {
-                      // Connect to the lobby room using Colyseus connection hook
-                      const room = await createRoom('my_room');
-                      if (room) {
-                        window.location.href = '/LobbyPage';
-                      }
-                    } catch (err) {
-                      console.error("Failed to create room", err);
+                      // Use joinRoom from the hook
+                      const room = await joinRoom("my_room", { players });
+                      console.log("Joined room:", room);
+                      navigate('/lobby'); // modified navigation
+                    } catch (error) {
+                      console.error("Failed to join room:", error);
                     }
                   }}
                 >
@@ -97,7 +99,13 @@ const CreateGamePage: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
 // Suggestion: Consider storing the current selected story in Redux if this state is used application-wide.
-export default CreateGamePage;
+export default function CreateGamePage() {
+  return (
+    <ColyseusProvider>
+      <CreateGameContent />
+    </ColyseusProvider>
+  );
+}
