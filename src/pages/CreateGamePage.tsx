@@ -11,7 +11,7 @@ function CreateGameContent() {
   const [inputValue, setInputValue] = useState('');
 
   // Move hook call to the top level
-  const { joinRoom } = useColyseus();
+  const { createRoom } = useColyseus();
   const navigate = useNavigate(); // added navigation hook
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -80,7 +80,7 @@ function CreateGameContent() {
                   onClick={async () => {
                     try {
                       // Use joinRoom from the hook
-                      const room = await joinRoom("my_room", { players });
+                      const room = await createRoom("my_room", { players });
                       console.log("Joined room:", room);
                       navigate('/lobby'); // modified navigation
                     } catch (error) {
