@@ -18,7 +18,7 @@ export const ColyseusProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
 	const createRoom = async (roomName: string, options?: any) => {
 		const newRoom = await client.create(roomName, options);
 		// Save room id for reconnection
-		sessionStorage.setItem('roomId', newRoom.id);
+		sessionStorage.setItem('roomId', newRoom.sessionId);
 		setRoom(newRoom);
 		return newRoom;
 	};
@@ -26,7 +26,7 @@ export const ColyseusProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
 	const joinRoomById = async (roomId: string, options?: any) => {
 		const newRoom = await client.joinById(roomId, options);
 		// Save room id for reconnection
-		sessionStorage.setItem('roomId', newRoom.id);
+		sessionStorage.setItem('roomId', newRoom.sessionId);
 		setRoom(newRoom);
 		return newRoom;
 	};
