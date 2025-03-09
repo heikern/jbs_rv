@@ -12,9 +12,9 @@ const BottomToolbar: React.FC = () => {
   const playerOptions = ['Any', '1', '2', '3', '4', '5', '6', '7', '8'];
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-gray-50 border-t border-gray-200 p-4">
+    <footer className="fixed bottom-0 left-0 right-0 bg-black p-2">
       <div className="flex justify-end items-center">
-        <label className="mr-2 font-bold" htmlFor="playerFilter">
+        <label className="mr-2 font-bold text-white" htmlFor="playerFilter">
           Players:
         </label>
         <select
