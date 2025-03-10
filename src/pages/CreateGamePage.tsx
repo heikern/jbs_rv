@@ -1,111 +1,89 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom'; // added import
-import GameList from '../components/GameList'; // assuming this component exists
-import type { Adventure } from '../types/storyTypes';
-import type { RootState } from '../store';
-import { ColyseusProvider, useColyseus } from '../contexts/ColyseusContext';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { setNumPlayers } from "@/store/gameSlice";
+import StoryList from "@/components/StoryList";
+import BottomToolbar from "@/components/BottomToolbar";
 
-function CreateGameContent() {
-  const [players, setPlayers] = useState<number | null>(null);
-  const [inputValue, setInputValue] = useState('');
-
-  // Move hook call to the top level
-  const { createRoom } = useColyseus();
-  const navigate = useNavigate(); // added navigation hook
+export default function BackButtonPage() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [modalOpen, setModalOpen] = useState(true);
+  const [playersInput, setPlayersInput] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const num = parseInt(inputValue, 10);
+    const num = parseInt(playersInput, 10);
     if (!isNaN(num) && num > 0) {
-      setPlayers(num);
+      dispatch(setNumPlayers(num));
+      setModalOpen(false);
     }
   };
 
-  // Use selectedGameId from Redux and retrieve adventures from firebase state
-  const selectedGameId = useSelector((state: RootState) => state.game.selectedGameId);
-  const { adventures } = useSelector((state: RootState) => state.firebase);
-  const selectedStory: Adventure | undefined = selectedGameId
-    ? adventures.find((adventure: Adventure) => Number(adventure.id) === selectedGameId)
-    : undefined;
-
   return (
-    <div className="min-h-screen w-screen bg-black flex flex-col items-center">
-      {/* Fixed back button */}
-      <div className="fixed top-0 left-0 w-full p-4 z-10">
-        <button
-          onClick={() => navigate('/')} // modified navigation
-          className="bg-gray-500 text-white px-4 py-2 rounded"
-        >
+    <div className="min-h-screen relative bg-black text-white">
+      {/* Back button at the top left */}
+      <div className="absolute top-0 left-0 m-4 z-10">
+        <Button variant="ghost" onClick={() => navigate("/")}>
           Back
-        </button>
+        </Button>
       </div>
-      {players === null ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow">
-            <label htmlFor="players" className="block mb-4 text-black">
-              How many players?
-            </label>
-            <input
-              id="players"
-              type="number"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="border p-2 mb-4 w-full"
-              min="1"
-            />
-            <div className="flex space-x-4">
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                Confirm
-              </button>
-              <button type="button" onClick={() => navigate('/')} className="bg-gray-500 text-white px-4 py-2 rounded">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : (
-        <div className="w-full pt-20 relative h-screen">
-          <div className="overflow-y-auto h-[calc(100vh-150px)]">
-            {/* Pass a callback to GameList to update the selected story if desired */}
-            <GameList filterPlayerNum={players} /* onSelectStory={setSelectedStory} */ />
-          </div>
-          {/* Fixed create room div */}
-          <div className="fixed bottom-0 left-0 w-full p-4 border-t border-gray-300 text-white bg-black z-10">
-            {selectedStory ? (
-              <>
-                <p>Selected Story: {selectedStory.title}</p>
-                <button
-                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={async () => {
-                    try {
-                      // Use joinRoom from the hook
-                      const room = await createRoom("my_room", { players });
-                      console.log("Joined room:", room);
-                      navigate('/lobby'); // modified navigation
-                    } catch (error) {
-                      console.error("Failed to join room:", error);
-                    }
-                  }}
+      {modalOpen && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+          <Card className="w-[350px]">
+            <form onSubmit={handleSubmit}>
+              <CardHeader>
+                <CardTitle className="p-2">How many players?</CardTitle>
+                {/* <CardDescription>
+                  Enter a number greater than 0.
+                </CardDescription> */}
+              </CardHeader>
+              <CardContent>
+                <div className="grid w-full items-center gap-4">
+                  <div className="flex flex-col space-y-1.5">
+                    {/* <Label htmlFor="players">Players</Label> */}
+                    <Input
+                      id="players"
+                      type="number"
+                      value={playersInput}
+                      onChange={(e) => setPlayersInput(e.target.value)}
+                      min="1"
+                      placeholder="Number of players"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button type="submit">Confirm</Button>
+                <Button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  variant="ghost"
                 >
-                  Create Room
-                </button>
-              </>
-            ) : (
-              <p>No story selected</p>
-            )}
-          </div>
+                  Cancel
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
         </div>
       )}
+      {/* ...existing page content... */}
+      <div
+        className="flex items-center justify-center h-full px-10"
+        style={{ paddingTop: "calc(56px + 1rem)" }} // dynamically set padding based on back button height
+      >
+        <StoryList />
+        <BottomToolbar />
+      </div>
     </div>
-  );
-}
-
-// Suggestion: Consider storing the current selected story in Redux if this state is used application-wide.
-export default function CreateGamePage() {
-  return (
-    <ColyseusProvider>
-      <CreateGameContent />
-    </ColyseusProvider>
   );
 }

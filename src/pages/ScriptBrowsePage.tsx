@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
-import GameList from '../components/GameList'; // new import
+import StoryList from '@/components/StoryList';
 import BottomToolbar from '../components/BottomToolbar';
 
 const ScriptBrowsePage: React.FC = () => {
@@ -19,7 +19,7 @@ const ScriptBrowsePage: React.FC = () => {
         {error && <p className="text-red-500">Error: {error}</p>}
       </div>
       <div className="flex-1 overflow-y-auto p-4">
-        <GameList filterPlayerNum={null} />
+        <StoryList />
       </div>
       <BottomToolbar />
     </div>

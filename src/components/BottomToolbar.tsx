@@ -1,37 +1,24 @@
-import React, { useState } from 'react';
+import React from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
-const BottomToolbar: React.FC = () => {
-  const [playerNumber, setPlayerNumber] = useState('');
-
-  const handlePlayerNumberChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPlayerNumber(e.target.value);
-    // Optionally, add a callback or context update to trigger filter update
-  };
-
-  // Define options including "Any" for the empty value
-  const playerOptions = ['Any', '1', '2', '3', '4', '5', '6', '7', '8'];
-
+export default function BottomToolbar() {
+  // Get selectedGameId from game state and adventures from firebase state
+  const selectedGameId = useSelector((state: RootState) => state.game.selectedGameId);
+  const adventures = useSelector((state: RootState) => state.firebase.adventures);
+  
+  // Find the adventure based on selectedGameId
+  const selectedAdventure = selectedGameId 
+    ? adventures?.find((adventure: any) => Number(adventure.id) === selectedGameId)
+    : null;
+    
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-black p-2">
-      <div className="flex justify-end items-center">
-        <label className="mr-2 font-bold text-white" htmlFor="playerFilter">
-          Players:
-        </label>
-        <select
-          id="playerFilter"
-          value={playerNumber}
-          onChange={handlePlayerNumberChange}
-          className="p-2 border border-gray-300 rounded"
-        >
-          {playerOptions.map((option, index) => (
-           <option key={index} value={option === 'Any' ? '' : option}>
-             {option}
-           </option>
-          ))}
-        </select>
-      </div>
-    </footer>
+    <div className="fixed bottom-0 left-0 w-full p-4 bg-gray-800 text-white">
+      {selectedAdventure ? (
+        <span>Select: {selectedAdventure.title}</span>
+      ) : (
+        <span>No adventure selected</span>
+      )}
+    </div>
   );
-};
-
-export default BottomToolbar;
+}

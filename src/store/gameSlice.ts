@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface GameState {
   data: any;
   selectedGameId: number | null;
+  numPlayers: number | null; // new state field
 }
 
 const initialState: GameState = {
   data: null,
   selectedGameId: null,
+  numPlayers: null, // initial value
 };
 
 const gameSlice = createSlice({
@@ -22,9 +24,12 @@ const gameSlice = createSlice({
     },
     setSelectedGameId: (state, action: PayloadAction<number | null>) => {
       state.selectedGameId = action.payload;
+    },
+    setNumPlayers: (state, action: PayloadAction<number>) => { // new reducer
+      state.numPlayers = action.payload;
     }
   }
 });
 
-export const { setGameState, clearGameState, setSelectedGameId } = gameSlice.actions;
+export const { setGameState, clearGameState, setSelectedGameId, setNumPlayers } = gameSlice.actions;
 export default gameSlice.reducer;
