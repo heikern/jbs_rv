@@ -11,7 +11,7 @@ import { setSelectedGameId } from "@/store/gameSlice";
 const StoryList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { adventures, loading, error } = useSelector((state: RootState) => state.firebase);
-  const { numPlayers, selectedGameId } = useSelector((state: RootState) => state.game);
+  const { numPlayers } = useSelector((state: RootState) => state.game);
   
   useEffect(() => {
     dispatch(fetchAdventures());
@@ -37,7 +37,8 @@ const StoryList: React.FC = () => {
                     <div>Rating: {adventure.rating}</div>
                   </div>
                   <div>
-                    <Button variant={"outline"}>Create Game</Button>
+                    <Button variant={"outline"} onClick={()=>{dispatch(setSelectedGameId(Number(adventure.id)));}}>
+                      Create Game</Button>
                   </div>
                 </div>
               </AccordionContent>
