@@ -18,7 +18,7 @@ const StoryList: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <ScrollArea className="h-[400px] w-full">
+    <ScrollArea className="h-auto w-full rounded-lg">
       {loading && <p>Loading adventures...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
       <Accordion type="multiple">

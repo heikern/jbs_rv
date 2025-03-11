@@ -25,7 +25,7 @@ const gameSlice = createSlice({
     setSelectedGameId: (state, action: PayloadAction<number | null>) => {
       state.selectedGameId = action.payload;
     },
-    setNumPlayers: (state, action: PayloadAction<number>) => { // new reducer
+    setNumPlayers: (state, action: PayloadAction<number | null>) => { // updated to accept null
       state.numPlayers = action.payload;
     }
   }
