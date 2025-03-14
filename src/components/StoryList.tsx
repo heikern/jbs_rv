@@ -8,7 +8,6 @@ import type { Story } from "../types/storyTypes";
 import type { AppDispatch, RootState } from "@/store";
 import { setSelectedGameId,  } from "@/store/appSlice";
 import { setSelectedStory } from "../store/firebaseSlice";
-import { useColyseus } from "../contexts/ColyseusContext";
 import { useNavigate } from "react-router-dom";
 
 const StoryList: React.FC = () => {
@@ -16,7 +15,7 @@ const StoryList: React.FC = () => {
   const navigate = useNavigate();
   const { stories, loading, error } = useSelector((state: RootState) => state.firebase);
   const { numPlayers } = useSelector((state: RootState) => state.game);
-  const {createRoom} = useColyseus();
+
   
   useEffect(() => {
     dispatch(fetchStories());
@@ -24,7 +23,6 @@ const StoryList: React.FC = () => {
 
   function createGame(storyId: string) {
     dispatch(setSelectedGameId(storyId));
-    createRoom("my_room", { "storyId": storyId });
     dispatch(setSelectedStory(storyId))
     navigate("/lobby");
   }

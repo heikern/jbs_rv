@@ -3,15 +3,15 @@ import LabelWithCopy from '@/components/labelWithCopy';
 import React from 'react';
 import { useSelector} from 'react-redux';
 import PlayerNameForm from '../components/PlayerNameForm';
-import { useColyseus } from '@/contexts/ColyseusContext';
 import {usePlayerData} from '@/hooks/playerStateChange';
+import { useState } from 'react';
 
 
 const LobbyPage: React.FC = () => {
   const roomId = useSelector((state: any) => state.game.roomId);
   const sessionId = useSelector((state: any) => state.game.sessionId);
   const selectedStory = useSelector((state:any) => state.firebase.selectedStory);
-  const {setPlayerName, room} = useColyseus();
+  const [playerName, setPlayerName] = useState<string | null>(null);
   const players = usePlayerData(room);
   const player = players.find((player) => player.id === sessionId);
 

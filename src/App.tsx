@@ -1,14 +1,14 @@
 import React from 'react';
 import AppRouter from './AppRouter';
-import { ColyseusProvider } from './contexts/ColyseusContext';
+import { RoomProvider } from './contexts/RoomContext';
 import { Toaster } from 'sonner';
 
 const App: React.FC = () => {
   return (
-    <ColyseusProvider>
+    <RoomProvider>
         <AppRouter />
         <Toaster />
-    </ColyseusProvider>
+    </RoomProvider>
   );
 };
 
