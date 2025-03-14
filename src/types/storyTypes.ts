@@ -7,7 +7,7 @@ export type PlayerScript = {
     background: string;
   }
   
-  export type Adventure = {
+  export type Story = {
     id: string;
     title: string;
     description: string;
@@ -20,5 +20,5 @@ export type PlayerScript = {
   }
   
   export type Data = {
-    adventures: Adventure[];
+    stories: Story[];
   }

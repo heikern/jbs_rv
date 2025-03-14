@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setNumPlayers } from '@/store/gameSlice';
+import { setNumPlayers } from '@/store/appSlice';
 import type { RootState } from '../store';
 import StoryList from '@/components/StoryList';
 import TopBar from '@/components/TopBar';

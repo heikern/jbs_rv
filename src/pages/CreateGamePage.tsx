@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setNumPlayers } from "@/store/gameSlice";
+import { setNumPlayers } from "@/store/appSlice";
 import { PlayerCounterForm } from "@/components/PlayerCounterForm";
 import StoryList from "@/components/StoryList";
 import TopBar from "@/components/TopBar";

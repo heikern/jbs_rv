@@ -1,33 +1,35 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { firebaseApp } from '../firebase/config';
-import { Adventure } from '../types/storyTypes';
+import { Story } from '../types/storyTypes';
 
 const firestore = getFirestore(firebaseApp);
 
 export interface FirebaseState {
-  adventures: Adventure[];
+  stories: Story[];
+  selectedStory: Story | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: FirebaseState = {
-  adventures: [],
+  stories: [],
+  selectedStory: null,
   loading: false,
   error: null,
 };
 
-export const fetchAdventures = createAsyncThunk(
-  'firebase/fetchAdventures',
+export const fetchStories = createAsyncThunk(
+  'firebase/fetchStories',
   async (_, { rejectWithValue }) => {
     try {
-      const adventuresCollection = collection(firestore, 'adventures');
-      const querySnapshot = await getDocs(adventuresCollection);
-      const adventures: Adventure[] = [];
+      const storiesCollection = collection(firestore, 'stories');
+      const querySnapshot = await getDocs(storiesCollection);
+      const stories: Story[] = [];
       querySnapshot.forEach((doc) => {
-        adventures.push({ id: doc.id, ...doc.data() } as Adventure);
+        stories.push({ id: doc.id, ...doc.data() } as Story);
       });
-      return adventures;
+      return stories;
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
@@ -38,22 +40,29 @@ const firebaseSlice = createSlice({
   name: 'firebase',
   initialState,
   reducers: {
-    // ...existing reducers if any...
+    setSelectedStory: (state, action: PayloadAction<string | null>) => {
+      state.stories.map((story)=>{
+        if (story.id === String(action.payload)){
+          state.selectedStory = story;
+        }
+      });
+    },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchAdventures.pending, (state) => {
+    builder.addCase(fetchStories.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(fetchAdventures.fulfilled, (state, action: PayloadAction<Adventure[]>) => {
+    builder.addCase(fetchStories.fulfilled, (state, action: PayloadAction<Story[]>) => {
       state.loading = false;
-      state.adventures = action.payload;
+      state.stories = action.payload;
     });
-    builder.addCase(fetchAdventures.rejected, (state, action) => {
+    builder.addCase(fetchStories.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
   },
 });
 
+export const {setSelectedStory} = firebaseSlice.actions;
 export default firebaseSlice.reducer;

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useDispatch } from "react-redux" // added for dispatch
-import { setNumPlayers } from "@/store/gameSlice" // added for dispatching num players
+import { setNumPlayers } from "@/store/appSlice" // added for dispatching num players
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -49,7 +49,7 @@ export function PlayerCounterForm() {
 	}
 
     function handleCancel() {
-        navigate('/')
+        navigate('back')
     }
 
 	return (
