@@ -3,11 +3,11 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface playerState {
     playerName: string | null;
     playerRole: string | null;
-    isHost: boolean; // new state field
   }
 
 interface gameState {
-    selectedGameId: string | null;
+    hostSessionId: string | null; 
+    selectedStoryId: string | null;
     sessionId: string | null; // new state field
     roomId: string | null; // new state field
     numPlayers: number | null; // new state field
@@ -16,7 +16,8 @@ interface gameState {
   }
 
   const initialState: gameState = {
-    selectedGameId: null,
+    hostSessionId: null,
+    selectedStoryId: null,
     sessionId: null, // initial value
     roomId: null, // initial value
     numPlayers: null, // initial value
@@ -24,7 +25,6 @@ interface gameState {
     playerState: {
       playerName: null,
       playerRole: null,
-      isHost: false, // new state field
     },
   };
 
@@ -32,8 +32,8 @@ interface gameState {
     name: "game",
     initialState,
     reducers: {
-      setSelectedGameId: (state, action: PayloadAction<string | null>) => {
-        state.selectedGameId = action.payload;
+      setSelectedStoryId: (state, action: PayloadAction<string | null>) => {
+        state.selectedStoryId = action.payload;
       },
       setNumPlayers: (state, action: PayloadAction<number | null>) => {
         state.numPlayers = action.payload;
@@ -44,14 +44,11 @@ interface gameState {
       setSessionId: (state, action: PayloadAction<string | null>) => {
         state.sessionId = action.payload;
       },
-      setIsHost: (state, action: PayloadAction<boolean>) => {
-        state.playerState.isHost = action.payload;
-      },
       setPlayerName: (state, action: PayloadAction<string | null>) => {
         state.playerState.playerName = action.payload;
       },
     },
   })
 
-export const { setSelectedGameId, setNumPlayers, setRoomId, setSessionId, setIsHost, setPlayerName } = gameSlice.actions;
+export const { setSelectedStoryId, setNumPlayers, setRoomId, setSessionId, setPlayerName } = gameSlice.actions;
 export default gameSlice.reducer;

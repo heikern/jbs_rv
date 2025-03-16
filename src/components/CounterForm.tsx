@@ -34,11 +34,11 @@ export function CounterForm({ selectItems, onSubmit, onCancel }: CounterFormProp
   
     return (
     <Card className="w-[350px]">
+        <form onSubmit={handleOnSubmit}>
       <CardHeader>
         <CardTitle>How many players?</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleOnSubmit} className="flex flex-col gap-4">
           <div className="grid w-full items-center gap-4">
             <Select onValueChange={(value)=> setNumPlayers(Number(value))} defaultValue={numPlayers?.toString()}>
               <SelectTrigger>
@@ -53,14 +53,15 @@ export function CounterForm({ selectItems, onSubmit, onCancel }: CounterFormProp
               </SelectContent>
             </Select>
           </div>
-        </form>
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex">
+        <Button variant="outline">Submit</Button>
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button>Submit</Button>
+        
       </CardFooter>
+      </form>
     </Card>
   )
 }

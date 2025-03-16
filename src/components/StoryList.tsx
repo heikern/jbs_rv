@@ -6,24 +6,43 @@ import { Button } from "@/components/ui/button"; // added import for Button
 import { fetchStories } from "../store/firebaseSlice";
 import type { Story } from "../types/storyTypes";
 import type { AppDispatch, RootState } from "@/store";
-import { setSelectedGameId,  } from "@/store/appSlice";
-import { setSelectedStory } from "../store/firebaseSlice";
+import { setSelectedStoryId, setPlayerName } from "../store/gameSlice";
 import { useNavigate } from "react-router-dom";
+import { useRoomContext } from "@/contexts/RoomContext";
+import { getStateCallbacks } from "colyseus.js";
 
 const StoryList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { stories, loading, error } = useSelector((state: RootState) => state.firebase);
   const { numPlayers } = useSelector((state: RootState) => state.game);
-
+  const {createRoom} = useRoomContext();
   
   useEffect(() => {
     dispatch(fetchStories());
   }, [dispatch]);
 
-  function createGame(storyId: string) {
-    dispatch(setSelectedGameId(storyId));
-    dispatch(setSelectedStory(storyId))
+  async function createGame(storyId: string) {
+    //  this is wrong. the client should only take confirmations from the game server
+
+    const room = await createRoom("my_room", {storyId: storyId});
+    room.onStateChange.once((_: any)=>{
+      const $ = getStateCallbacks(room);
+      $(room.state.storyMetadata).listen("Id", (newId: string, _: string) => {
+        dispatch(setSelectedStoryId(newId));
+      });
+
+      $(room.state).players.onAdd((player, sessionId)=>{
+        console.log("player added", player, sessionId);
+        $(player).onChange(()=>{
+          console.log("player changed", player.playerName);
+          dispatch(setPlayerName(player.name));
+        })
+      })
+
+
+    })
+    
     navigate("/lobby");
   }
 

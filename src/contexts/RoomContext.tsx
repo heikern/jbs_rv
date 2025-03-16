@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useEffect, ReactNode, RefObject, use } from 'react';
+import React, { createContext, useContext, useRef, useEffect, ReactNode, RefObject } from 'react';
 import { Room } from 'colyseus.js';
 import { client } from '../colyseus/colyseusClient';
 
@@ -6,7 +6,7 @@ type RoomType = Room<any>;
 
 interface RoomContextType {
 	roomRef: RefObject<RoomType | null>;
-	createRoom: (roomName: string, options: any) => void;
+	createRoom: (roomName: string, options?: any) => Promise<RoomType>;
 	joinRoomWithId: (roomId: string) => void;
 }
 
@@ -19,9 +19,11 @@ interface RoomProviderProps{
 export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 	const roomRef = useRef<RoomType | null>(null);
 
-	const createRoom = async (roomName: string, options: any) => {
+	const createRoom = async (roomName: string, options?: any) => {
 		const room = await client.create(roomName, options);
 		roomRef.current = room;
+
+		return room
 	};
 
 	const joinRoomWithId = async (roomId: string) => {
@@ -30,9 +32,14 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 	}
 
 	useEffect(() => {
+		const handleBeforeUnload = () => {
+			roomRef.current?.leave()
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload)
+
 		return () => {
-			roomRef.current?.leave();
-			roomRef.current = null;
+			window.removeEventListener("beforeunload", handleBeforeUnload)
 		};
 	}	, []);
 

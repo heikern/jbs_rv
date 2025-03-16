@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setNumPlayers } from "@/store/appSlice";
+import { setNumPlayers } from "@/store/gameSlice";
 import { useNavigate } from "react-router-dom";
 import CounterForm from "@/components/CounterForm";
 import StoryList from "@/components/StoryList";
