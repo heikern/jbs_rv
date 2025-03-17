@@ -1,42 +1,45 @@
 import TopBar from '@/components/TopBar';
 import LabelWithCopy from '@/components/labelWithCopy';
-import React from 'react';
+import React, { useEffect } from 'react';
 import PlayerNameForm from '../components/PlayerNameForm';
-import { useState } from 'react';
 import { setServerPlayerName } from '@/colyseus/messageLib';
 import { useRoom } from '@/contexts/RoomContext';
 import { useSelector } from 'react-redux';
 
 
 const LobbyPage: React.FC = () => {
-  const [playerName, setPlayerName]  = useState<string| null>(null)
   const room = useRoom();
-  const playerState = useSelector((state: any) => state.game.playerState);
+  const sessionId = room?.sessionId;
+  const playerStateArray = useSelector((state: any) => state.game.playerStateArray);
+  const playerState = playerStateArray.find((player: any) => player.playerSessionId === sessionId);
+  console.log("playerState Array: ",playerStateArray)
 
+  useEffect(()=>{
+    console.log("playerState: ", playerState)
+  },[playerStateArray])
+  
   const handleSubmit = (name: string) => {
-    setPlayerName(name)
     if (room){
       setServerPlayerName(room,name);
     }
     console.log("player name: ", name)
+    console.log("playerState: ", playerState)
   };
 
   return (
     <div className="min-h-screen w-screen bg-black text-white flex flex-col justify-center items-center">
       <TopBar />
-      { playerName   === null ? (
+      { !playerState || playerState.playerName === '' ? (
         <PlayerNameForm onSubmit={handleSubmit}/>
       ): (
         <div>
-          <h1>key: {playerState.playerName}</h1>
+          <h1>Hello {playerState?.playerName}</h1>
           <div className="flex items-center space-x-2">
             <p>RoomId</p>
+            {room && <LabelWithCopy value={room?.roomId}/>}
           </div>
         </div>
       )}
-
-      
-
     </div>
   );
 };

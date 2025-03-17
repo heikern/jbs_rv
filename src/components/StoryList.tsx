@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"; // added import for Button
 import { fetchStories } from "../store/firebaseSlice";
 import type { Story } from "../types/storyTypes";
 import type { AppDispatch, RootState } from "@/store";
-import { setSelectedStoryId, setPlayerName } from "../store/gameSlice";
+import { setSelectedStoryId, updatePlayerState } from "../store/gameSlice";
 import { useNavigate } from "react-router-dom";
 import { useRoomContext } from "@/contexts/RoomContext";
 import { getStateCallbacks } from "colyseus.js";
@@ -33,10 +33,29 @@ const StoryList: React.FC = () => {
       });
 
       $(room.state).players.onAdd((player, sessionId)=>{
-        console.log("player added", player, sessionId);
+        const updatedPlayerState = {
+          playerName: player.playerName,
+          playerRole: player.playerRole
+        }
+        const inputParams = {
+          updatedState: updatedPlayerState,
+          playerSessionId: sessionId
+        }
+        dispatch(updatePlayerState(inputParams));
+        console.log("player added", updatedPlayerState, sessionId);
+
         $(player).onChange(()=>{
           console.log("player changed", player.playerName);
-          dispatch(setPlayerName(player.name));
+          const updatedPlayerState = {
+            playerName: player.playerName,
+            playerRole: player.playerRole
+          }
+          const inputParams = {
+            updatedState: updatedPlayerState,
+            playerSessionId: sessionId
+          }
+          console.log("inputParams", inputParams);
+          dispatch(updatePlayerState(inputParams));
         })
       })
 
