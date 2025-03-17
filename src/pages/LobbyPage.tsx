@@ -1,7 +1,7 @@
 import TopBar from '@/components/TopBar';
 import LabelWithCopy from '@/components/labelWithCopy';
 import React, { useEffect } from 'react';
-import PlayerNameForm from '../components/PlayerNameForm';
+import SingleStringForm from '../components/SingleStringForm';
 import { setServerPlayerName } from '@/colyseus/messageLib';
 import { useRoom } from '@/contexts/RoomContext';
 import { useSelector } from 'react-redux';
@@ -30,7 +30,7 @@ const LobbyPage: React.FC = () => {
     <div className="min-h-screen w-screen bg-black text-white flex flex-col justify-center items-center">
       <TopBar />
       { !playerState || playerState.playerName === '' ? (
-        <PlayerNameForm onSubmit={handleSubmit}/>
+        <SingleStringForm onSubmit={handleSubmit} placeholder={'Enter your player name'}/>
       ): (
         <div>
           <h1>Hello {playerState?.playerName}</h1>

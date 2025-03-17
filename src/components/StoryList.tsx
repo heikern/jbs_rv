@@ -6,63 +6,22 @@ import { Button } from "@/components/ui/button"; // added import for Button
 import { fetchStories } from "../store/firebaseSlice";
 import type { Story } from "../types/storyTypes";
 import type { AppDispatch, RootState } from "@/store";
-import { setSelectedStoryId, updatePlayerState } from "../store/gameSlice";
-import { useNavigate } from "react-router-dom";
-import { useRoomContext } from "@/contexts/RoomContext";
-import { getStateCallbacks } from "colyseus.js";
 
-const StoryList: React.FC = () => {
+type StoryListProps = {
+  onCreateRoom: (storyId: string) => void;
+};
+
+const StoryList: React.FC<StoryListProps> = ({ onCreateRoom }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const { stories, loading, error } = useSelector((state: RootState) => state.firebase);
   const { numPlayers } = useSelector((state: RootState) => state.game);
-  const {createRoom} = useRoomContext();
   
   useEffect(() => {
     dispatch(fetchStories());
   }, [dispatch]);
 
-  async function createGame(storyId: string) {
-    //  this is wrong. the client should only take confirmations from the game server
-
-    const room = await createRoom("my_room", {storyId: storyId});
-    room.onStateChange.once((_: any)=>{
-      const $ = getStateCallbacks(room);
-      $(room.state.storyMetadata).listen("Id", (newId: string, _: string) => {
-        dispatch(setSelectedStoryId(newId));
-      });
-
-      $(room.state).players.onAdd((player, sessionId)=>{
-        const updatedPlayerState = {
-          playerName: player.playerName,
-          playerRole: player.playerRole
-        }
-        const inputParams = {
-          updatedState: updatedPlayerState,
-          playerSessionId: sessionId
-        }
-        dispatch(updatePlayerState(inputParams));
-        console.log("player added", updatedPlayerState, sessionId);
-
-        $(player).onChange(()=>{
-          console.log("player changed", player.playerName);
-          const updatedPlayerState = {
-            playerName: player.playerName,
-            playerRole: player.playerRole
-          }
-          const inputParams = {
-            updatedState: updatedPlayerState,
-            playerSessionId: sessionId
-          }
-          console.log("inputParams", inputParams);
-          dispatch(updatePlayerState(inputParams));
-        })
-      })
-
-
-    })
-    
-    navigate("/lobby");
+  const handleCreate = (storyId: string) => {
+    onCreateRoom(storyId);
   }
 
   return (
@@ -85,7 +44,7 @@ const StoryList: React.FC = () => {
                     <div>Rating: {Story.rating}</div>
                   </div>
                   <div>
-                    <Button variant={"outline"} onClick={()=>{createGame(Story.id)}}>
+                    <Button variant={"outline"} onClick={()=>{handleCreate(Story.id)}}>
                       Create Game</Button>
                   </div>
                 </div>

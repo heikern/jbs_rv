@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-type PlayerNameFormProps = {
+type SingleStringFormProps = {
     onSubmit: (name: string) => void;
+    placeholder?: string;
 };
 
-const PlayerNameForm: React.FC<PlayerNameFormProps> = ({ onSubmit }) => {
+const SingleStringForm: React.FC<SingleStringFormProps> = ({ onSubmit, placeholder = "" }) => {
     const [name, setName] = useState("");
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -18,7 +19,7 @@ const PlayerNameForm: React.FC<PlayerNameFormProps> = ({ onSubmit }) => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
                 type="text"
-                placeholder="Enter your preferred name"
+                placeholder = {placeholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -28,4 +29,4 @@ const PlayerNameForm: React.FC<PlayerNameFormProps> = ({ onSubmit }) => {
     );
 };
 
-export default PlayerNameForm;
+export default SingleStringForm;
