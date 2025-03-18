@@ -9,12 +9,12 @@ import type { AppDispatch, RootState } from "@/store";
 
 type StoryListProps = {
   onCreateGame: (storyId: string) => void;
+  numPlayers: number | null;
 };
 
-const StoryList: React.FC<StoryListProps> = ({onCreateGame}) => {
+const StoryList: React.FC<StoryListProps> = ({onCreateGame, numPlayers}) => {
   const dispatch = useDispatch<AppDispatch>();
   const { stories, loading, error } = useSelector((state: RootState) => state.firebase);
-  const { numPlayers } = useSelector((state: RootState) => state.game);
   
   useEffect(() => {
     dispatch(fetchStories());

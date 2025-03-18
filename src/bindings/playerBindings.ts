@@ -1,16 +1,11 @@
 // gameBindings.ts
 import { Room, getStateCallbacks } from "colyseus.js";
-import { setSelectedStoryId, updatePlayerState } from "../store/gameSlice";
+import { updatePlayerState } from "../store/gameSlice";
 
 // You can refine the type of Room's state if available.
 export function setupGameBindings(room: Room<any>, dispatch: any): void {
   room.onStateChange.once(() => {
     const callbacks = getStateCallbacks(room);
-
-    // Bind listener for story metadata updates.
-    callbacks(room.state.storyMetadata).listen("Id", (newId: string) => {
-      dispatch(setSelectedStoryId(newId));
-    });
 
     Object.entries(room.state.players)
     .filter(([sessionId, _]) => {

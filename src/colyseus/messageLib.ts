@@ -1,6 +1,11 @@
-import { Room } from "colyseus.js"; 
 
 
-export const setServerPlayerName = (room: Room<any>, playerName: string) => {
+export const setServerPlayerName = (room: any, playerName: string) => {
   room.send("setColyPlayerName", {playerName: playerName})
+}
+
+export const setColyNumPlayers = (room: any, numPlayers: number) => {
+  if (room){
+    room.send("setColyNumPlayers", {numPlayers: numPlayers})
+  }
 }

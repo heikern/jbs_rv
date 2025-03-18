@@ -1,27 +1,22 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setNumPlayers } from "@/store/gameSlice";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CounterForm from "@/components/CounterForm";
 import StoryList from "@/components/StoryList";
 import TopBar from "@/components/TopBar";
 import { useRoomContext } from "@/contexts/RoomContext";
+import { updateRoomMetaData } from "@/store/gameSlice";
 import { setupGameBindings } from "@/bindings/playerBindings";
-
+import storyMetaDataBinding from "@/bindings/storyMetaDataBinding";
+import { useDispatch } from "react-redux";
 
 export default function CreateGamePage() {
-	const dispatch = useDispatch();
-	const numPlayers = useSelector((state: any) => state.game.numPlayers);
 	const navigate = useNavigate();
 	const {createRoom} = useRoomContext()
-
-	useEffect(() => {
-		// On loading the page, set numPlayers to null
-		dispatch(setNumPlayers(null));
-	}, [dispatch]);
+	const [numPlayers, setNumPlayers] = useState<number | null>(null);
+	const dispatch = useDispatch();
 
 	const handleOnSubmit = (numPlayers: number) => {
-		dispatch(setNumPlayers(numPlayers));
+		setNumPlayers(numPlayers)
 	};
 
 	const handleOnCancel = () => {
@@ -29,9 +24,16 @@ export default function CreateGamePage() {
 	};
 
 	async function handleCreateGame(storyId: string) {
-		console.log("Creating game with storyId within page: ", storyId);
+		console.log("Creating game with storyId: ", storyId);
 		const room = await createRoom("my_room", {storyId: storyId});
+		room.onStateChange.once(()=>{
+			const plainMetadata = JSON.parse(JSON.stringify(room.state.storyMetadata));
+			console.log("plainMetadata: ", plainMetadata);
+			dispatch(updateRoomMetaData(plainMetadata));
+		})
 		setupGameBindings(room, dispatch);
+		storyMetaDataBinding(room, dispatch);
+		
 		navigate("/lobby");
 	}
 
@@ -47,7 +49,7 @@ export default function CreateGamePage() {
 				</div>
 			) : (
         <div className="w-full flex justify-center items-center px-8">
-				<StoryList onCreateGame={handleCreateGame}/>
+				<StoryList onCreateGame={handleCreateGame} numPlayers = {numPlayers}/>
         </div>
 			)}
 		</div>

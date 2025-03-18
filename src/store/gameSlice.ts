@@ -1,5 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface storyMetadata {
+    id: string | null;
+    title: string | null;
+    description: string | null;
+    numberOfPlayers: number | null;
+}
+
 interface playerState {
     playerSessionId: string | null;
     playerName: string | null;
@@ -8,40 +15,24 @@ interface playerState {
 
 interface gameState {
     hostSessionId: string | null; 
-    selectedStoryId: string | null;
     sessionId: string | null; // new state field
     roomId: string | null; // new state field
-    numPlayers: number | null; // new state field
-    storyTitle: string | null; // new state field
     playerStateArray: playerState[]; // new state field
+    storyMetadata: storyMetadata;
   }
 
   const initialState: gameState = {
     hostSessionId: null,
-    selectedStoryId: null,
     sessionId: null, // initial value
     roomId: null, // initial value
-    numPlayers: null, // initial value
-    storyTitle: null, // initial value
     playerStateArray: [],
+    storyMetadata: new Object() as storyMetadata,
   };
 
   const gameSlice = createSlice({
     name: "game",
     initialState,
     reducers: {
-      setSelectedStoryId: (state, action: PayloadAction<string | null>) => {
-        state.selectedStoryId = action.payload;
-      },
-      setNumPlayers: (state, action: PayloadAction<number | null>) => {
-        state.numPlayers = action.payload;
-      },
-      setRoomId: (state, action: PayloadAction<string | null>) => {
-        state.roomId = action.payload;
-      },
-      setSessionId: (state, action: PayloadAction<string | null>) => {
-        state.sessionId = action.payload;
-      },
       updatePlayerState: (state, action: PayloadAction<any>) => {
         const {playerSessionId, updatedState} = action.payload;
         const playerIndex = state.playerStateArray.findIndex((player) => player.playerSessionId === playerSessionId);
@@ -60,8 +51,21 @@ interface gameState {
         }
         console.log(state.playerStateArray);
       },
+      updateRoomMetaData : (state, action: PayloadAction<any>) => {
+        const {Id, Title, Description, NumberOfPlayers} = action.payload;
+        state.storyMetadata.id = Id;
+        state.storyMetadata.description = Description;
+        state.storyMetadata.title = Title;
+        state.storyMetadata.numberOfPlayers = NumberOfPlayers;
+      },
     },
   })
 
-export const { setSelectedStoryId, setNumPlayers, setRoomId, setSessionId, updatePlayerState } = gameSlice.actions;
+export const { 
+              //  setSelectedStoryId, 
+              //  setNumPlayers, 
+              //  setRoomId, 
+              //  setSessionId, 
+               updatePlayerState, 
+               updateRoomMetaData } = gameSlice.actions;
 export default gameSlice.reducer;

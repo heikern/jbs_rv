@@ -1,7 +1,6 @@
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { setNumPlayers } from '@/store/gameSlice';
 import type { RootState } from '../store';
 import StoryList from '@/components/StoryList';
 import TopBar from '@/components/TopBar';
@@ -12,7 +11,6 @@ const ScriptBrowsePage: React.FC = () => {
 
   useEffect(() => {
       // On loading the page, set numPlayers to null
-      dispatch(setNumPlayers(null));
     }, [dispatch]);
 
   return (
@@ -24,7 +22,7 @@ const ScriptBrowsePage: React.FC = () => {
         {error && <p className="text-red-500">Error: {error}</p>}
       </div>
       <div className="flex-1 overflow-y-auto px-8">
-        <StoryList />
+        <StoryList onCreateGame={()=>{}} numPlayers={-1}/>
       </div>
     </div>
   );

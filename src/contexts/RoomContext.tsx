@@ -22,23 +22,18 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 	const createRoom = async (roomName: string, options?: any) => {
 		const room = await client.create(roomName, options);
 		roomRef.current = room;
-
 		return room
 	};
 
 	const joinRoomWithId = async (roomId: string) => {
-		try{
-			const room = await client.joinById(roomId);
-			roomRef.current = room;
-			return room
-		} catch (e) {
-			console.log("Error joining room: ", e)
-			return e
-		}
+		const room = await client.joinById(roomId);
+		roomRef.current = room;
+		return room
 		
 	}
 
 	useEffect(() => {
+
 		const handleBeforeUnload = () => {
 			roomRef.current?.leave()
 		};
