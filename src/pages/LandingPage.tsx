@@ -10,7 +10,7 @@ const LandingPage: React.FC = () => {
   };
 
   const handleJoin = () => {
-    navigate('/lobby');
+    navigate('/join-room');
   };
 
   const handleBrowse = () => {

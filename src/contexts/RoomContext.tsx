@@ -7,7 +7,7 @@ type RoomType = Room<any>;
 interface RoomContextType {
 	roomRef: RefObject<RoomType | null>;
 	createRoom: (roomName: string, options?: any) => Promise<RoomType>;
-	joinRoomWithId: (roomId: string) => void;
+	joinRoomWithId: (roomId: string) => Promise<RoomType>;
 }
 
 const RoomContext = createContext<RoomContextType | null>(null);
@@ -27,8 +27,15 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 	};
 
 	const joinRoomWithId = async (roomId: string) => {
-		const room = await client.joinById(roomId);
-		roomRef.current = room;
+		try{
+			const room = await client.joinById(roomId);
+			roomRef.current = room;
+			return room
+		} catch (e) {
+			console.log("Error joining room: ", e)
+			return e
+		}
+		
 	}
 
 	useEffect(() => {
