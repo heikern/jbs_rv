@@ -14,6 +14,7 @@ const LobbyPage: React.FC = () => {
   const playerStateArray = useSelector((state: any) => state.game.playerStateArray);
   const playerState = playerStateArray.find((player: any) => player.playerSessionId === sessionId);
   const numPlayers = useSelector((state: any) => state.game.storyMetadata.numberOfPlayers);
+  console.log("numPlayers: ",numPlayers)
   console.log("playerState Array: ",playerStateArray)
 
   useEffect(()=>{

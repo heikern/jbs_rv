@@ -44,7 +44,7 @@ export default function CreateGamePage() {
 				<div className="w-full flex justify-center items-center">
 					<CounterForm onSubmit={handleOnSubmit} 
 								 onCancel={handleOnCancel} 
-								 selectItems={[3, 4, 5]}
+								 selectItems={[2, 3, 4, 5]}
 								 />
 				</div>
 			) : (

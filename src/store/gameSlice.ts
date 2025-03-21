@@ -58,6 +58,12 @@ interface gameState {
         state.storyMetadata.title = Title;
         state.storyMetadata.numberOfPlayers = NumberOfPlayers;
       },
+      removePlayerState: (state, action: PayloadAction<any>) => {
+        state.playerStateArray = state.playerStateArray.filter(
+          (player) => player.playerSessionId !== action.payload
+        );
+        console.log("Removed player session:", action.payload);
+      },
     },
   })
 
@@ -66,6 +72,7 @@ export const {
               //  setNumPlayers, 
               //  setRoomId, 
               //  setSessionId, 
-               updatePlayerState, 
+               updatePlayerState,
+               removePlayerState, 
                updateRoomMetaData } = gameSlice.actions;
 export default gameSlice.reducer;
