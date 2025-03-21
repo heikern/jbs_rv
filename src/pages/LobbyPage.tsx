@@ -5,6 +5,7 @@ import PlayerNameForm from '../components/PlayerNameForm';
 import { setServerPlayerName } from '@/colyseus/messageLib';
 import { useRoom } from '@/contexts/RoomContext';
 import { useSelector } from 'react-redux';
+import { Button } from '@/components/ui/button';
 import PlayersInLobby from '@/components/PlayersInLobby';
 
 const LobbyPage: React.FC = () => {
@@ -44,6 +45,13 @@ const LobbyPage: React.FC = () => {
           </div>
           <h4>{playerStateArray.length}/ {numPlayers} Players </h4>
           <PlayersInLobby players={playerStateArray}/>
+          <Button 
+            onClick={()=>{console.log("start game")}}
+            disabled={playerStateArray.length !== numPlayers}
+            variant={playerStateArray.length === numPlayers ? 'outline' : 'default'}
+            >
+              Start Game
+            </Button>
         </div>
       )}
     </div>

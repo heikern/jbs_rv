@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useRef, useEffect, ReactNode, RefObject } from 'react';
 import { Room } from 'colyseus.js';
 import { client } from '../colyseus/colyseusClient';
+import { useDispatch } from 'react-redux';
+import { removePlayerState } from '../store/gameSlice';
 
 type RoomType = Room<any>;
 
@@ -18,6 +20,7 @@ interface RoomProviderProps{
 
 export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 	const roomRef = useRef<RoomType | null>(null);
+	const dispatch = useDispatch();
 
 	const createRoom = async (roomName: string, options?: any) => {
 		const room = await client.create(roomName, options);
@@ -34,7 +37,17 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 
 	useEffect(() => {
 
+		if (roomRef.current) {
+			const room = roomRef.current;
+			room.onLeave(() => {
+				dispatch(removePlayerState({playerSessionId: room.sessionId}));
+				roomRef.current = null;
+			});
+
+		}
+
 		const handleBeforeUnload = () => {
+			dispatch(removePlayerState({playerSessionId: roomRef.current?.sessionId}));
 			roomRef.current?.leave()
 		};
 
