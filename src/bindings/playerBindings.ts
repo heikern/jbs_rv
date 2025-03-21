@@ -1,6 +1,6 @@
 // gameBindings.ts
 import { Room, getStateCallbacks } from "colyseus.js";
-import { updatePlayerState } from "../store/gameSlice";
+import { updatePlayerState, removePlayerState } from "../store/gameSlice";
 
 // You can refine the type of Room's state if available.
 export function setupGameBindings(room: Room<any>, dispatch: any): void {
@@ -48,5 +48,12 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
         }));
       });
     });
+
+    // Bind listener for players being removed.
+    callbacks(room.state).players.onRemove((_, sessionId: string) => {
+      console.log( `Player ${sessionId} has left the game.`);
+      dispatch(removePlayerState({playerSessionId: sessionId}));
+    })
+      
   });
 }
