@@ -1,6 +1,6 @@
 // gameBindings.ts
 import { Room, getStateCallbacks } from "colyseus.js";
-import { updatePlayerState, removePlayerState } from "../store/gameSlice";
+import { updatePlayerState,  removePlayerState} from "../store/gameSlice";
 
 // You can refine the type of Room's state if available.
 export function setupGameBindings(room: Room<any>, dispatch: any): void {
@@ -31,5 +31,32 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
         }));
       });
     });
-  });
+
+
+    // Bind listener for players being removed.
+    callbacks(room.state).players.onRemove((player: any, sessionId: string) => {
+      // Remove the player from the store.
+      console.log("player left: ", sessionId);
+      dispatch(removePlayerState(sessionId))
+    });
+
+    // Check if room.state.players exists before iterating
+    const players = room.state.players || {};
+    Object.entries(players)
+    .filter(([sessionId, _]) => {
+        // Skip known internal keys
+        return !["$items", "$indexes", "deletedItems"].includes(sessionId);
+      })
+    .forEach(([sessionId, player]) => {
+            const typedPlayer = player as { playerName: string; playerRole: string };
+            const updatedPlayerState = {
+                playerName: typedPlayer.playerName,
+                playerRole: typedPlayer.playerRole,
+            };
+        dispatch(updatePlayerState({
+            updatedState: updatedPlayerState,
+            playerSessionId: sessionId
+        }));
+    });
+
 }
