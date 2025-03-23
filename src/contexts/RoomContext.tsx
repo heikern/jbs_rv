@@ -2,9 +2,7 @@ import React, { createContext, useContext, useRef, useEffect, ReactNode, RefObje
 import { Room } from 'colyseus.js';
 import { client } from '../colyseus/colyseusClient';
 import { useDispatch } from 'react-redux';
-import { updateRoomMetaData } from '../store/gameSlice';
-import { setupGameBindings } from '../bindings/playerBindings';
-import storyMetaDataBinding from '../bindings/storyMetaDataBinding';
+import { setUpAllBingings } from '@/bindings/allBindings';
 
 type RoomType = Room<any>;
 
@@ -27,13 +25,14 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 
 	const createRoom = async (roomName: string, options?: any) => {
 		const room = await client.create(roomName, options);
-		localStorage.setItem("reconnectionToken", room.reconnectionToken);
+		await setUpAllBingings(room, dispatch);
 		roomRef.current = room;
 		return room
 	};
 
 	const joinRoomWithId = async (roomId: string) => {
 		const room = await client.joinById(roomId);
+		await setUpAllBingings(room, dispatch);
 		localStorage.setItem("reconnectionToken", room.reconnectionToken);
 		roomRef.current = room;
 		return room
@@ -52,13 +51,7 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 			localStorage.setItem("reconnectionToken", room.reconnectionToken);
 			roomRef.current = room;
 			console.log("Reconnected to room:", room.roomId);
-			room.onStateChange.once(()=>{
-				const plainMetadata = JSON.parse(JSON.stringify((room.state as any).storyMetadata));
-				console.log("plainMetadata: ", plainMetadata);
-				dispatch(updateRoomMetaData(plainMetadata));
-			})
-			setupGameBindings(room, dispatch);
-			storyMetaDataBinding(room, dispatch);
+			await setUpAllBingings(room, dispatch);
 			return room;
 		  } catch (error) {
 			console.error("Failed to reconnect:", error);

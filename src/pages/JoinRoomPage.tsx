@@ -4,28 +4,16 @@ import { useState } from "react"
 import { useRoomContext } from "@/contexts/RoomContext"
 import TopBar from "@/components/TopBar"
 import { useNavigate } from "react-router-dom"
-import { updateRoomMetaData } from "@/store/gameSlice";
-import { setupGameBindings } from "@/bindings/playerBindings";
-import storyMetaDataBinding from "@/bindings/storyMetaDataBinding";
-import { useDispatch } from "react-redux";
 
 export const JoinRoomPage: React.FC = () => {
     const [roomId, setRoomId] = useState<string>("")
     const {joinRoomWithId} = useRoomContext()
     const navigate = useNavigate()
-    const dispatch = useDispatch();
     
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         console.log ("Join Room ID: ", roomId)
-        const room = await joinRoomWithId(roomId)
-        room.onStateChange.once(()=>{
-            const plainMetadata = JSON.parse(JSON.stringify(room.state.storyMetadata));
-            console.log("plainMetadata: ", plainMetadata);
-            dispatch(updateRoomMetaData(plainMetadata));
-        })
-        setupGameBindings(room, dispatch);
-		storyMetaDataBinding(room, dispatch);
+        await joinRoomWithId(roomId)
 
         navigate("/lobby")
     }

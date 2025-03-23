@@ -9,3 +9,9 @@ export const setColyNumPlayers = (room: any, numPlayers: number) => {
     room.send("setColyNumPlayers", {numPlayers: numPlayers})
   }
 }
+
+export const setPlayerIsReady = (room: any, isReady: boolean) => {
+  if (room){
+    room.send("setPlayerIsReady", {isReady: isReady})
+  }
+}

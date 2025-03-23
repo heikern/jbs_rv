@@ -11,6 +11,7 @@ interface playerState {
     playerSessionId: string | null;
     playerName: string | null;
     playerRole: string | null;
+    isReady: boolean;
   }
 
 interface gameState {
@@ -33,6 +34,9 @@ interface gameState {
     name: "game",
     initialState,
     reducers: {
+      updateRoomState: (state, action: PayloadAction<any>) => {
+        state.hostSessionId = action.payload.hostSessionId;
+      },
       updatePlayerState: (state, action: PayloadAction<any>) => {
         const {playerSessionId, updatedState} = action.payload;
         const playerIndex = state.playerStateArray.findIndex((player) => player.playerSessionId === playerSessionId);
@@ -41,12 +45,14 @@ interface gameState {
             playerSessionId: playerSessionId,
             playerName: updatedState.playerName,
             playerRole: updatedState.playerRole,
+            isReady: updatedState.isReady,
           })
         } else {
           state.playerStateArray[playerIndex] = {
             playerSessionId: playerSessionId,
             playerName: updatedState.playerName,
             playerRole: updatedState.playerRole,
+            isReady: updatedState.isReady,
           }
         }
         console.log(state.playerStateArray);
@@ -72,7 +78,8 @@ export const {
               //  setNumPlayers, 
               //  setRoomId, 
               //  setSessionId, 
-               updatePlayerState, 
-               removePlayerState,
-               updateRoomMetaData } = gameSlice.actions;
+                updateRoomState,
+                updatePlayerState, 
+                removePlayerState,
+                updateRoomMetaData } = gameSlice.actions;
 export default gameSlice.reducer;
