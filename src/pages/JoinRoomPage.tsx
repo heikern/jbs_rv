@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRoomContext } from "@/contexts/RoomContext"
 import TopBar from "@/components/TopBar"
 import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
 
 export const JoinRoomPage: React.FC = () => {
     const [roomId, setRoomId] = useState<string>("")
@@ -19,18 +20,22 @@ export const JoinRoomPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen w-screen bg-black text-white flex flex-col justify-center items-center">
+        <div className="min-h-screen w-screen bg-black text-white flex flex-col">
             <TopBar /> 
-            <h1>Join Room Page</h1>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+            <form onSubmit={handleSubmit} className="flex-grow flex flex-col items-center justify-center">
                 <input
+                    className="text-center"
                     type="text"
                     placeholder="Enter Room ID"
                     value={roomId}
                     onChange={(e) => setRoomId(e.target.value)}
                     required
                 />
-                <button type="submit">Join Room</button>
+                <div className="py-4">
+                    <Button variant={"outline"} type="submit">Join Room</Button>
+                </div>
+                
 
             </form>
             

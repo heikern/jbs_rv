@@ -18,13 +18,14 @@ const LabelWithCopy: React.FC<LabelWithCopyProps> = ({ value }) => {
     };
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
             <span data-testid="room-code">{value}</span>
             <Copy 
-                style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                onClick={copyToClipboard} 
+            style={{ marginLeft: '4px', cursor: 'pointer' }} 
+            onClick={copyToClipboard} 
+            size={15}
             />
-        </div>
+        </span>
     );
 };
 

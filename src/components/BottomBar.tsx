@@ -1,45 +1,29 @@
 import React from "react";
-import {
-    TabsList,
-    TabsTrigger,
-  } from "@/components/ui/tabs"
+import { Button } from "./ui/button";
+import { inGamePages } from "../types/gamePages";
 
+// Define props for BottomBar
+interface BottomBarProps {
+    pageEnum: typeof inGamePages; // you can also use a more specific type if needed, e.g. typeof InGamePages
+    currentPage: inGamePages;
+    setCurrentPage: React.Dispatch<React.SetStateAction< inGamePages>>;
+  }
 
-const BottomBar: React.FC = () => {
-	return (
-		<div className="fixed bottom-0 left-0 w-full bg-black text-white flex items-center p-4">
-            <TabsList className="flex w-full grid-cols-5">
-                <TabsTrigger 
-                    value="Backdrop"
-                    className="data-[state=active]:outline"
-                    >
-                    Backdrop
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="Personal"
-                    className="data-[state=active]:outline"
-                    >
-                    Personal
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="Objectives"
-                    className="data-[state=active]:outline"
-                    >
-                    Objectives
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="Clues"
-                    className="data-[state=active]:outline"
-                    >
-                    Clues
-                </TabsTrigger>
-                <TabsTrigger 
-                    value="Notes"
-                    className="data-[state=active]:outline"
-                    >
-                    Notes
-                </TabsTrigger>
-            </TabsList>
+const BottomBar: React.FC<BottomBarProps> = ({pageEnum, currentPage, setCurrentPage}) => {
+	const pageValue: inGamePages[] = Object.values(pageEnum);
+
+    return (
+		<div className="w-full bg-black text-white flex items-center px-4 space-x-2">
+            {pageValue.map((page: inGamePages) => (
+                <Button
+                    key={page}
+                    variant={currentPage === page ? "outline" : "default"}
+                    className="px-2"
+                    onClick={() => setCurrentPage(page)}
+                >
+                    {page}
+                </Button>
+            ))}
 		</div>
 	);
 };

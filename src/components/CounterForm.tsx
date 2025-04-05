@@ -35,7 +35,7 @@ export function CounterForm({ selectItems, onSubmit, onCancel }: CounterFormProp
     return (
     <Card className="w-[350px]">
         <form onSubmit={handleOnSubmit}>
-      <CardHeader>
+      <CardHeader className="py-4">
         <CardTitle>How many players?</CardTitle>
       </CardHeader>
       <CardContent>
@@ -54,7 +54,7 @@ export function CounterForm({ selectItems, onSubmit, onCancel }: CounterFormProp
             </Select>
           </div>
       </CardContent>
-      <CardFooter className="flex">
+      <CardFooter className="flex px-4 py-4 space-x-4">
         <Button variant="outline">Submit</Button>
         <Button variant="outline" onClick={onCancel}>
           Cancel

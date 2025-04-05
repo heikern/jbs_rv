@@ -10,7 +10,7 @@ export function usePlayerData(room: Room<ColyseusGameState> | null): Player[] {
     const $ = getStateCallbacks(room);
 
     // Listen for players being added to the map
-    const offAdd = $(room.state).players.onAdd((player: Player, sessionId: string) => {
+    const offAdd = $(room.state).players.onAdd((player: Player, _: string) => {
       // Optionally, if you want to ensure the player object has the sessionId,
       // you can set it here if not already present:
       // player.id = sessionId;

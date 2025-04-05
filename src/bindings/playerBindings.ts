@@ -12,6 +12,7 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
       const updatedPlayerState = {
         playerName: player.playerName,
         playerRole: player.playerRole,
+        isReady: player.isReady,
       };
 
       dispatch(updatePlayerState({
@@ -24,6 +25,7 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
         const updatedPlayerState = {
           playerName: player.playerName,
           playerRole: player.playerRole,
+          isReady: player.isReady,
         };
         dispatch(updatePlayerState({
           updatedState: updatedPlayerState,
@@ -34,7 +36,7 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
 
 
     // Bind listener for players being removed.
-    callbacks(room.state).players.onRemove((player: any, sessionId: string) => {
+    callbacks(room.state).players.onRemove((_: any, sessionId: string) => {
       // Remove the player from the store.
       console.log("player left: ", sessionId);
       dispatch(removePlayerState(sessionId))
@@ -48,10 +50,11 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
         return !["$items", "$indexes", "deletedItems"].includes(sessionId);
       })
     .forEach(([sessionId, player]) => {
-            const typedPlayer = player as { playerName: string; playerRole: string };
+            const typedPlayer = player as { playerName: string; playerRole: string; isReady: boolean };
             const updatedPlayerState = {
                 playerName: typedPlayer.playerName,
                 playerRole: typedPlayer.playerRole,
+                isReady: typedPlayer.isReady,
             };
         dispatch(updatePlayerState({
             updatedState: updatedPlayerState,

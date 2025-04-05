@@ -15,3 +15,27 @@ export const setPlayerIsReady = (room: any, isReady: boolean) => {
     room.send("setPlayerIsReady", {isReady: isReady})
   }
 }
+
+export const setRandomizeRoles = (room: any) => {
+  if (room){
+    room.send("setRandomizeRoles")
+  }
+}
+
+export const setPlayerRole = (room: any, options: any) => {
+  if (room){
+    room.send("setPlayerRole", options)
+  }
+}
+
+export const setEnterLobby = (room: any) => {
+  if (room){
+    room.send("setEnterLobby")
+  }
+}
+
+export const setStartGame = (room: any) => {
+  if (room){
+    room.send("setStartGame")
+  }
+}

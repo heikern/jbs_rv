@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { GameStateEnum } from "@/types/gameStates";
 
 interface storyMetadata {
     id: string | null;
@@ -10,76 +11,90 @@ interface storyMetadata {
 interface playerState {
     playerSessionId: string | null;
     playerName: string | null;
-    playerRole: string | null;
+    playerRoleId: string | null;
     isReady: boolean;
   }
 
 interface gameState {
     hostSessionId: string | null; 
-    sessionId: string | null; // new state field
-    roomId: string | null; // new state field
+    gameState: GameStateEnum; // new state field
     playerStateArray: playerState[]; // new state field
     storyMetadata: storyMetadata;
   }
 
-  const initialState: gameState = {
-    hostSessionId: null,
-    sessionId: null, // initial value
-    roomId: null, // initial value
-    playerStateArray: [],
-    storyMetadata: new Object() as storyMetadata,
-  };
+// Create a function for a fresh initial state each time
+const getInitialState = (): gameState => ({
+  hostSessionId: null,
+  gameState: GameStateEnum.default,
+  playerStateArray: [],
+  storyMetadata: {
+    id: null,
+    title: null,
+    description: null,
+    numberOfPlayers: null,
+  },
+});
 
-  const gameSlice = createSlice({
-    name: "game",
-    initialState,
-    reducers: {
-      updateRoomState: (state, action: PayloadAction<any>) => {
+const initialState: gameState = getInitialState();
+
+const gameSlice = createSlice({
+  name: "game",
+  initialState,
+  reducers: {
+    updateRoomState: (state, action: PayloadAction<any>) => {
+      if ("hostSessionId" in action.payload) {
         state.hostSessionId = action.payload.hostSessionId;
-      },
-      updatePlayerState: (state, action: PayloadAction<any>) => {
-        const {playerSessionId, updatedState} = action.payload;
-        const playerIndex = state.playerStateArray.findIndex((player) => player.playerSessionId === playerSessionId);
-        if (playerIndex === -1) {
-          state.playerStateArray.push({
-            playerSessionId: playerSessionId,
-            playerName: updatedState.playerName,
-            playerRole: updatedState.playerRole,
-            isReady: updatedState.isReady,
-          })
-        } else {
-          state.playerStateArray[playerIndex] = {
-            playerSessionId: playerSessionId,
-            playerName: updatedState.playerName,
-            playerRole: updatedState.playerRole,
-            isReady: updatedState.isReady,
-          }
-        }
-        console.log(state.playerStateArray);
-      },
-      updateRoomMetaData : (state, action: PayloadAction<any>) => {
-        const {Id, Title, Description, NumberOfPlayers} = action.payload;
-        state.storyMetadata.id = Id;
-        state.storyMetadata.description = Description;
-        state.storyMetadata.title = Title;
-        state.storyMetadata.numberOfPlayers = NumberOfPlayers;
-      },
-      removePlayerState: (state, action: PayloadAction<any>) => {
-        state.playerStateArray = state.playerStateArray.filter(
-          (player) => player.playerSessionId !== action.payload
-        );
-        console.log("Removed player session:", action.payload);
-      },
+      }
+
+      if ("gameState" in action.payload) {
+        state.gameState = action.payload.gameState;
+      }
+
     },
-  })
+    updatePlayerState: (state, action: PayloadAction<any>) => {
+      const {playerSessionId, updatedState} = action.payload;
+      const playerIndex = state.playerStateArray.findIndex((player) => player.playerSessionId === playerSessionId);
+      if (playerIndex === -1) {
+        state.playerStateArray.push({
+          playerSessionId: playerSessionId,
+          playerName: updatedState.playerName,
+          playerRoleId: updatedState.playerRole,
+          isReady: updatedState.isReady,
+        })
+      } else {
+        state.playerStateArray[playerIndex] = {
+          playerSessionId: playerSessionId,
+          playerName: updatedState.playerName,
+          playerRoleId: updatedState.playerRole,
+          isReady: updatedState.isReady,
+        }
+      }
+    },
+    updateRoomMetaData : (state, action: PayloadAction<any>) => {
+      const {Id, Title, Description, NumberOfPlayers} = action.payload;
+      state.storyMetadata.id = Id;
+      state.storyMetadata.description = Description;
+      state.storyMetadata.title = Title;
+      state.storyMetadata.numberOfPlayers = NumberOfPlayers;
+    },
+    removePlayerState: (state, action: PayloadAction<any>) => {
+      state.playerStateArray = state.playerStateArray.filter(
+        (player) => player.playerSessionId !== action.payload
+      );
+      console.log("Removed player session:", action.payload);
+    },
+    resetGameState: (state) => {
+      console.log("Game state reset", state);
+      return getInitialState();
+    }
+  },
+})
 
 export const { 
-              //  setSelectedStoryId, 
-              //  setNumPlayers, 
-              //  setRoomId, 
-              //  setSessionId, 
                 updateRoomState,
                 updatePlayerState, 
                 removePlayerState,
-                updateRoomMetaData } = gameSlice.actions;
+                updateRoomMetaData,
+                resetGameState
+               } = gameSlice.actions;
 export default gameSlice.reducer;

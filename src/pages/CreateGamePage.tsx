@@ -4,6 +4,8 @@ import CounterForm from "@/components/CounterForm";
 import StoryList from "@/components/StoryList";
 import TopBar from "@/components/TopBar";
 import { useRoomContext } from "@/contexts/RoomContext";
+import {setEnterLobby} from "@/colyseus/messageLib";
+
 
 export default function CreateGamePage() {
 	const navigate = useNavigate();
@@ -20,8 +22,8 @@ export default function CreateGamePage() {
 
 	async function handleCreateGame(storyId: string) {
 		console.log("Creating game with storyId: ", storyId);
-		await createRoom("my_room", {storyId: storyId});
-		
+		const room = await createRoom("my_room", {storyId: storyId});
+		setEnterLobby(room);
 		navigate("/lobby");
 	}
 

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button"; // added import for Button
-import { fetchStories } from "../store/firebaseSlice";
+import { searchStories } from "../store/firebaseSlice";
 import type { Story } from "../types/storyTypes";
 import type { AppDispatch, RootState } from "@/store";
 
@@ -17,8 +17,12 @@ const StoryList: React.FC<StoryListProps> = ({onCreateGame, numPlayers}) => {
   const { stories, loading, error } = useSelector((state: RootState) => state.firebase);
   
   useEffect(() => {
-    dispatch(fetchStories());
-  }, [dispatch]);
+    if (numPlayers !== null) {
+      dispatch(searchStories({ numberOfPlayers: numPlayers }));
+    } else {
+      dispatch(searchStories({}));
+    }
+  }, [dispatch, numPlayers]);
 
   async function createGame(storyId: string) {
     onCreateGame(storyId);
