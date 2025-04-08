@@ -31,6 +31,7 @@ const LobbyPage: React.FC = () => {
   useEffect(()=>{
     console.log("playerState: ", playerState)
     console.log("gameState: ", gameState)
+    console.log("playerState Array in useEffect: ",playerStateArray)
     if (gameState === "InGame"){
       navigate('/game')
     }

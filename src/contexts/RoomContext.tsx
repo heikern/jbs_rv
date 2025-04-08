@@ -91,11 +91,66 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 		}
 	  };
 
+	  const initialReconnectCalledRef = useRef(false);
+
 	  useEffect(() => {
-		(async () => {
+		if (!initialReconnectCalledRef.current) {
+		  initialReconnectCalledRef.current = true;
+		  (async () => {
+			await reconnectRoom();
+		  })();
+		}
+	  }, []);
+
+	  useEffect(() => {
+		const handleOnline = async () => {
+		  console.log("Network connection restored, attempting reconnection");
 		  await reconnectRoom();
-		})();
-		// Note: we no longer register onLeave here because each room gets its own handler after creation or reconnection.
+		};
+		
+		window.addEventListener('online', handleOnline);
+		return () => window.removeEventListener('online', handleOnline);
+	  }, []);
+
+	  useEffect(() => {
+		const handleFocus = async () => {
+		  if (!roomRef.current) {
+			console.log("Window refocused without active room, attempting reconnection");
+			await reconnectRoom();
+		  }
+		};
+		
+		window.addEventListener('focus', handleFocus);
+		return () => window.removeEventListener('focus', handleFocus);
+	  }, []);
+
+	  useEffect(() => {
+		const handleVisibilityChange = async () => {
+		  if (document.visibilityState === 'visible' && !roomRef.current) {
+			console.log("App became visible, attempting reconnection");
+			await reconnectRoom();
+		  }
+		};
+		
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+	  }, []);
+
+	  useEffect(() => {
+		// Only runs if Network Information API is available
+		if ('connection' in navigator) {
+		  const connection = (navigator as any).connection;
+		  
+		  const handleConnectionChange = async () => {
+			console.log("Network type changed to:", connection.effectiveType);
+			if (!roomRef.current) {
+			  await reconnectRoom();
+			}
+		  };
+		  
+		  connection.addEventListener('change', handleConnectionChange);
+		  return () => connection.removeEventListener('change', handleConnectionChange);
+		}
 	  }, []);
 
 	return (
