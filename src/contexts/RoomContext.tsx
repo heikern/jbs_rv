@@ -153,6 +153,90 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 		}
 	  }, []);
 
+	  useEffect(() => {
+		let reconnectionAttemptTimerId: number | null = null;
+		let reconnectionAttempts = 0;
+		const MAX_RECONNECTION_ATTEMPTS = 5;
+		
+		const handleVisibilityChange = async () => {
+		  // Clear any pending reconnection attempts when visibility changes
+		  if (reconnectionAttemptTimerId) {
+			window.clearTimeout(reconnectionAttemptTimerId);
+			reconnectionAttemptTimerId = null;
+		  }
+		  
+		  if (document.visibilityState === 'visible') {
+			console.log("Screen unlocked/App became visible");
+			
+			// Reset reconnection attempts
+			reconnectionAttempts = 0;
+			
+			// Check if connection is still alive
+			if (!roomRef.current) {
+			  console.log("Connection lost while screen was locked, reconnecting");
+			  
+			  // Implement progressive retry with exponential backoff
+			  const attemptReconnection = async () => {
+				try {
+				  const room = await reconnectRoom();
+				  if (room) {
+					console.log("Successfully reconnected after screen unlock");
+					reconnectionAttempts = 0;
+					return;
+				  }
+				} catch (error) {
+				  console.error("Reconnection attempt failed:", error);
+				}
+				
+				// If unsuccessful and we haven't exceeded max attempts, try again with backoff
+				if (reconnectionAttempts < MAX_RECONNECTION_ATTEMPTS) {
+				  reconnectionAttempts++;
+				  const delayMs = Math.min(1000 * Math.pow(2, reconnectionAttempts), 30000); // Cap at 30 seconds
+				  console.log(`Scheduling reconnection attempt ${reconnectionAttempts} in ${delayMs}ms`);
+				  reconnectionAttemptTimerId = window.setTimeout(attemptReconnection, delayMs);
+				}
+			  };
+			  
+			  await attemptReconnection();
+			}
+		  } else if (document.visibilityState === 'hidden') {
+			console.log("Screen locked/App hidden");
+			// Optionally do cleanup or state saving when screen is locked
+		  }
+		};
+		
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => {
+		  document.removeEventListener('visibilitychange', handleVisibilityChange);
+		  if (reconnectionAttemptTimerId) {
+			window.clearTimeout(reconnectionAttemptTimerId);
+		  }
+		};
+	  }, []);
+
+	  useEffect(() => {
+		let heartbeatInterval: number | null = null;
+		
+		if (roomRef.current) {
+		  // Send a heartbeat every 30 seconds to check connection
+		  heartbeatInterval = window.setInterval(() => {
+			if (roomRef.current) {
+			  try {
+				// Use a lightweight message to check connection
+				roomRef.current.send("heartbeat");
+			  } catch (e) {
+				console.warn("Heartbeat failed, connection may be lost");
+				reconnectRoom();
+			  }
+			}
+		  }, 30000);
+		}
+		
+		return () => {
+		  if (heartbeatInterval) window.clearInterval(heartbeatInterval);
+		};
+	  }, [roomRef.current]);
+
 	return (
 		<RoomContext.Provider value={{roomRef, createRoom, joinRoomWithId, reconnectRoom, leaveRoom}}>
 			{children}
