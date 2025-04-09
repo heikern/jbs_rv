@@ -51,8 +51,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       colyseus.js:
-        specifier: ^0.16.10
-        version: 0.16.10
+        specifier: ^0.16.15
+        version: 0.16.15
       firebase:
         specifier: ^11.4.0
         version: 11.4.0
@@ -1559,8 +1559,8 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
-  colyseus.js@0.16.10:
-    resolution: {integrity: sha512-YPHb53oxHueG68ulytT2uHHBFvHYxhIKit35VKHBo5Oplj/QMoiNtRWEqQ4YFk7OzirKbIEUHIaCfH/90PgtKg==}
+  colyseus.js@0.16.15:
+    resolution: {integrity: sha512-yCQr2ipNzH7pO65u53xnqvudOcraJoH3B2bkPTkBkic8JTu4QUv/kazj3/nWLiYA0aKPP3Xo6ZYIgX2JvkAGlA==}
     engines: {node: '>= 12.x'}
 
   concat-map@0.0.1:
@@ -3953,7 +3953,7 @@ snapshots:
 
   color-name@1.1.4: {}
 
-  colyseus.js@0.16.10:
+  colyseus.js@0.16.15:
     dependencies:
       '@colyseus/msgpackr': 1.10.5
       '@colyseus/schema': 3.0.19

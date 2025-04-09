@@ -34,8 +34,9 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 
 	const createRoom = async (roomName: string, options?: any) => {
 		const room = await client.create(roomName, options);
-		await setUpAllBingings(room, dispatch);
+		console.log("createRoom reconnectionToken: ", room.reconnectionToken);
 		localStorage.setItem("reconnectionToken", room.reconnectionToken);
+		await setUpAllBingings(room, dispatch);
 		roomRef.current = room;
 		attachOnLeaveHandler(room);
 		return room
@@ -43,199 +44,86 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 
 	const joinRoomWithId = async (roomId: string) => {
 		const room = await client.joinById(roomId);
-		await setUpAllBingings(room, dispatch);
+		console.log("joinRoom reconnectionToken: ", room.reconnectionToken);
 		localStorage.setItem("reconnectionToken", room.reconnectionToken);
+		await setUpAllBingings(room, dispatch);
 		roomRef.current = room;
 		attachOnLeaveHandler(room);
 		return room
 		
 	}
 
-	 // Attempt to reconnect using the stored reconnection token
-	 const reconnectRoom = async (): Promise<RoomType | null> => {
-		console.log("Entered reconnectRoom");
-		const reconnectionToken = localStorage.getItem("reconnectionToken");
-		if (reconnectionToken) {
-			console.log("Reconnection token found:", reconnectionToken);
-		  try {
-			if (roomRef.current){
-				roomRef.current = null
-			}
-			const room = await client.reconnect(reconnectionToken);
-			localStorage.setItem("reconnectionToken", room.reconnectionToken);
-			roomRef.current = room;
-			await setUpAllBingings(room, dispatch);
-			attachOnLeaveHandler(room);
-			console.log("Reconnected to room:", room.roomId);
-			
-			return room;
-		  } catch (error) {
-			console.error("Failed to reconnect:", error);
-			// Remove stale token if reconnection fails
-			localStorage.removeItem("reconnectionToken");
-			return null;
-		  }
-		}
-		console.log("No reconnection token found.");
+	// Attempt to reconnect using the stored reconnection token
+	const reconnectRoom = async (): Promise<RoomType | null> => {
+	console.log("Entered reconnectRoom");
+	const reconnectionToken = localStorage.getItem("reconnectionToken");
+	if (reconnectionToken) {
+		console.log("Reconnection token found:", reconnectionToken);
+		try {
+		const room = await client.reconnect(reconnectionToken);
+		console.log("reconnectionToken: ", room.reconnectionToken);
+		localStorage.setItem("reconnectionToken", room.reconnectionToken);
+		roomRef.current = room;
+		await setUpAllBingings(room, dispatch);
+		attachOnLeaveHandler(room);
+		console.log("Reconnected to room:", room.roomId);
+		return room;
+		} catch (error) {
+		console.error("Failed to reconnect. Leaving room:", error);
+
+		await leaveRoom();
 		return null;
-	  };
-
-	  const leaveRoom = async () => {
-		if (roomRef.current) {
-			roomRef.current.removeAllListeners();
-			localStorage.removeItem("reconnectionToken");
-			await roomRef.current.leave();
-			roomRef.current = null;
-			console.log("Left room and cleared roomRef.");
-			dispatch(resetGameState());
 		}
-	  };
+	}
+	console.log("No reconnection token found.");
+	return null;
+	};
 
-	  const initialReconnectCalledRef = useRef(false);
-
-	  useEffect(() => {
-		if (!initialReconnectCalledRef.current) {
-		  initialReconnectCalledRef.current = true;
-		  (async () => {
+	const leaveRoom = async () => {
+	if (roomRef.current) {
+		console.log("Leaving room:", roomRef.current.roomId);
+		roomRef.current.removeAllListeners();
+		localStorage.removeItem("reconnectionToken");
+		await roomRef.current.leave();
+		roomRef.current = null;
+		console.log("Left room and cleared roomRef.");
+		dispatch(resetGameState());
+	}
+	};
+	const hasTriedReconnect = useRef(false);
+	useEffect(() => {
+		if (hasTriedReconnect.current){return;};
+		hasTriedReconnect.current = true;
+		const tryReconnect = async () => {
+			console.log("Attempting to reconnect on page load...");
 			await reconnectRoom();
-		  })();
-		}
-	  }, []);
-
-	  useEffect(() => {
-		const handleOnline = async () => {
-		  console.log("Network connection restored, attempting reconnection");
-		  await reconnectRoom();
 		};
-		
-		window.addEventListener('online', handleOnline);
-		return () => window.removeEventListener('online', handleOnline);
-	  }, []);
+		tryReconnect();
+	}, []);
 
-	  useEffect(() => {
-		const handleFocus = async () => {
-		  if (!roomRef.current) {
-			console.log("Window refocused without active room, attempting reconnection");
-			await reconnectRoom();
-		  }
-		};
-		
-		window.addEventListener('focus', handleFocus);
-		return () => window.removeEventListener('focus', handleFocus);
-	  }, []);
-
-	  useEffect(() => {
+	// Add to your RoomProvider component
+	useEffect(() => {
 		const handleVisibilityChange = async () => {
-		  if (document.visibilityState === 'visible' && !roomRef.current) {
-			console.log("App became visible, attempting reconnection");
+		if (document.visibilityState === 'visible') {
+			// App has returned to the foreground
+			console.log("App returned to foreground, checking connection...");
+			
+			// Check if we need to reconnect (room exists but connection might be stale)
+			if (!roomRef.current || !roomRef.current.connection.isOpen) {
+			console.log("Connection lost while app was in background, attempting to reconnect...");
 			await reconnectRoom();
-		  }
-		};
-		
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-		return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-	  }, []);
-
-	  useEffect(() => {
-		// Only runs if Network Information API is available
-		if ('connection' in navigator) {
-		  const connection = (navigator as any).connection;
-		  
-		  const handleConnectionChange = async () => {
-			console.log("Network type changed to:", connection.effectiveType);
-			if (!roomRef.current) {
-			  await reconnectRoom();
 			}
-		  };
-		  
-		  connection.addEventListener('change', handleConnectionChange);
-		  return () => connection.removeEventListener('change', handleConnectionChange);
 		}
-	  }, []);
-
-	  useEffect(() => {
-		let reconnectionAttemptTimerId: number | null = null;
-		let reconnectionAttempts = 0;
-		const MAX_RECONNECTION_ATTEMPTS = 5;
-		
-		const handleVisibilityChange = async () => {
-		  // Clear any pending reconnection attempts when visibility changes
-		  if (reconnectionAttemptTimerId) {
-			window.clearTimeout(reconnectionAttemptTimerId);
-			reconnectionAttemptTimerId = null;
-		  }
-		  
-		  if (document.visibilityState === 'visible') {
-			console.log("Screen unlocked/App became visible");
-			
-			// Reset reconnection attempts
-			reconnectionAttempts = 0;
-			
-			// Check if connection is still alive
-			if (!roomRef.current) {
-			  console.log("Connection lost while screen was locked, reconnecting");
-			  
-			  // Implement progressive retry with exponential backoff
-			  const attemptReconnection = async () => {
-				try {
-				  const room = await reconnectRoom();
-				  if (room) {
-					console.log("Successfully reconnected after screen unlock");
-					reconnectionAttempts = 0;
-					return;
-				  }
-				} catch (error) {
-				  console.error("Reconnection attempt failed:", error);
-				}
-				
-				// If unsuccessful and we haven't exceeded max attempts, try again with backoff
-				if (reconnectionAttempts < MAX_RECONNECTION_ATTEMPTS) {
-				  reconnectionAttempts++;
-				  const delayMs = Math.min(1000 * Math.pow(2, reconnectionAttempts), 30000); // Cap at 30 seconds
-				  console.log(`Scheduling reconnection attempt ${reconnectionAttempts} in ${delayMs}ms`);
-				  reconnectionAttemptTimerId = window.setTimeout(attemptReconnection, delayMs);
-				}
-			  };
-			  
-			  await attemptReconnection();
-			}
-		  } else if (document.visibilityState === 'hidden') {
-			console.log("Screen locked/App hidden");
-			// Optionally do cleanup or state saving when screen is locked
-		  }
 		};
+	
+		// Add visibility change listener
+		document.addEventListener("visibilitychange", handleVisibilityChange);
 		
-		document.addEventListener('visibilitychange', handleVisibilityChange);
+		// Cleanup
 		return () => {
-		  document.removeEventListener('visibilitychange', handleVisibilityChange);
-		  if (reconnectionAttemptTimerId) {
-			window.clearTimeout(reconnectionAttemptTimerId);
-		  }
+		document.removeEventListener("visibilitychange", handleVisibilityChange);
 		};
-	  }, []);
-
-	  useEffect(() => {
-		let heartbeatInterval: number | null = null;
-		
-		if (roomRef.current) {
-		  // Send a heartbeat every 30 seconds to check connection
-		  heartbeatInterval = window.setInterval(() => {
-			if (roomRef.current) {
-			  try {
-				// Use a lightweight message to check connection
-				roomRef.current.send("heartbeat");
-			  } catch (e) {
-				console.warn("Heartbeat failed, connection may be lost");
-				reconnectRoom();
-			  }
-			}
-		  }, 30000);
-		}
-		
-		return () => {
-		  if (heartbeatInterval) window.clearInterval(heartbeatInterval);
-		};
-	  }, [roomRef.current]);
+	}, []);
 
 	return (
 		<RoomContext.Provider value={{roomRef, createRoom, joinRoomWithId, reconnectRoom, leaveRoom}}>

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CounterForm from "@/components/CounterForm";
 import StoryList from "@/components/StoryList";
 import TopBar from "@/components/TopBar";
 import { useRoomContext } from "@/contexts/RoomContext";
 import {setEnterLobby} from "@/colyseus/messageLib";
+import { GameStateEnum } from "@/types/gameStates";
+import { useSelector } from "react-redux";
 
 
 export default function CreateGamePage() {
@@ -12,6 +14,17 @@ export default function CreateGamePage() {
 	const {createRoom} = useRoomContext()
 	const [numPlayers, setNumPlayers] = useState<number | null>(null);
 
+	// Subscribe to the game state from Redux
+    const gameState = useSelector((state: any) => state.game.gameState);
+
+	// Watch for changes in game state and navigate when it becomes "lobby"
+    useEffect(() => {
+        if (gameState === GameStateEnum.Lobby) {
+            console.log("Game state is now lobby, navigating...");
+            navigate("/lobby");
+        }
+    }, [gameState, navigate]);
+	
 	const handleOnSubmit = (numPlayers: number) => {
 		setNumPlayers(numPlayers)
 	};
@@ -24,7 +37,6 @@ export default function CreateGamePage() {
 		console.log("Creating game with storyId: ", storyId);
 		const room = await createRoom("my_room", {storyId: storyId});
 		setEnterLobby(room);
-		navigate("/lobby");
 	}
 
 	return (
