@@ -51,8 +51,6 @@ const LobbyPage: React.FC = () => {
   const handleStartGame = () => {
     setStartGame(room)
     setRandomizeRoles(room)
-    console.log("Starting game")
-    navigate('/game')
   }
 
   const handleIsReady = () => {

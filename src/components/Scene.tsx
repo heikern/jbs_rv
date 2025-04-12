@@ -1,26 +1,29 @@
-import { useSelector} from "react-redux";
-import { RolePublicData } from "@/types/storyTypes";
+import { useSelector, useDispatch} from "react-redux";
+import {fetchCommonScript} from "../store/scriptSlice";
+import { useEffect } from "react";
+import { AppDispatch } from "@/store";
+import ReactMarkdown from "react-markdown";
 
 const Scene = () => { 
-    // const selectedStory = useSelector((state: any) => state.firebase.selectedStory);
-    const publicData = useSelector((state: any) => state.firebase.publicData);
-    console.log(publicData)
+    const selectedStoryId = useSelector((state: any) => state.game.storyMetadata.id);
+    const dispatch = useDispatch<AppDispatch>();
+    const commonScript = useSelector((state: any) => state.scripts.commonScript);
+
+    useEffect(()=>{
+        if (selectedStoryId){
+            console.log("selectedStoryId: ", selectedStoryId)
+            dispatch(fetchCommonScript({ storyId: selectedStoryId }))
+        }
+    },[selectedStoryId, dispatch])
+
 
     return (
-        <div>
-            <h2>Scene</h2>
-            <p className="px-5">{publicData?.scene}</p>
-            <p>------------------</p>
-            <h2>Player Descriptions</h2>
-            {publicData?.roles.map((role: RolePublicData)=>{
-                return (
-                    <div>
-                        <p>{role.name} the {role.role}</p>
-                        <p>{role.description}</p>
-                        <p>------------------</p>
-                    </div>
-                )
-            })}
+        <div className="prose prose-lg max-w-none px-5 py-6">
+            {!commonScript ? (
+                <p className="text-gray-500 italic">Loading...</p>
+            ) : (
+                <ReactMarkdown>{commonScript}</ReactMarkdown>
+            )}
         </div>
     );
 }

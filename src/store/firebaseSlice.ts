@@ -1,17 +1,15 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Story, PublicData } from '../types/storyTypes';
+import { Story } from '../types/storyTypes';
 import { REST_API_URL } from '../config';
 
 export interface FirebaseState {
   stories: Story[];
-  publicData: PublicData;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: FirebaseState = {
   stories: [],
-  publicData: new Object() as PublicData,
   loading: false,
   error: null,
 };
@@ -42,22 +40,29 @@ export const searchStories = createAsyncThunk(
   }
 );
 
-export const fetchPublicDataByStoryId = createAsyncThunk(
-  'firebase/fetchPublicDataByStoryId',
-  async (storyId: string, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${REST_API_URL}/firebase/publicData/${storyId}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        return rejectWithValue(errorData.detail || 'Error fetching public data');
-      }
-      const data = await response.json();
-      return data as PublicData;
-    } catch (err: any) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
+// export const fetchRoleDataByStoryId = createAsyncThunk(
+//   'firebase/fetchRoleDataByStoryId',
+//   async (params: { storyId?: string}, { rejectWithValue }) => {
+//     try {
+//       const searchParams: Record<string, string> = {};
+
+//       if (params.storyId !== undefined) {
+//         searchParams.storyId = params.storyId;
+//       }
+//       const queryParams = new URLSearchParams(searchParams).toString();
+//       const response = await fetch(`${REST_API_URL}/firebase/search?${queryParams}`);
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         return rejectWithValue(errorData.detail || 'Error fetching role data');
+//       }
+//       const data = await response.json();
+//       return data as PublicData;
+//     } catch (err: any) {
+//       return rejectWithValue(err.message);
+//     }
+//   }
+// );
 
 const firebaseSlice = createSlice({
   name: 'firebase',
@@ -77,18 +82,18 @@ const firebaseSlice = createSlice({
       state.error = action.payload as string;
     });
 
-    builder.addCase(fetchPublicDataByStoryId.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(fetchPublicDataByStoryId.fulfilled, (state, action: PayloadAction<PublicData>) => {
-      state.loading = false;
-      state.publicData = action.payload;
-    }); 
-    builder.addCase(fetchPublicDataByStoryId.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    // builder.addCase(fetchRoleDataByStoryId.pending, (state) => {
+    //   state.loading = true;
+    //   state.error = null;
+    // });
+    // builder.addCase(fetchRoleDataByStoryId.fulfilled, (state, action: PayloadAction<PublicData>) => {
+    //   state.loading = false;
+    //   state.publicData = action.payload;
+    // }); 
+    // builder.addCase(fetchRoleDataByStoryId.rejected, (state, action) => {
+    //   state.loading = false;
+    //   state.error = action.payload as string;
+    // });
   },
 });
 

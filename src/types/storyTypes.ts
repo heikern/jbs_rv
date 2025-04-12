@@ -6,6 +6,17 @@ export type PlayerScript = {
     objective: string[];
     background: string;
   }
+
+  export type roleMetaData = {
+    id:string;
+    name:string;
+    role:string;
+    description:string;
+  }
+  
+  export type RoleMap = {
+    [key: string]: roleMetaData
+  }
   
 export type Story = {
   id: string;
@@ -14,21 +25,7 @@ export type Story = {
   number_of_players: number;
   difficulty: string;
   rating: number;
-  player_scripts: {
-    [key: string]: PlayerScript;
-  }
-}
-
-export type RolePublicData = {
-  id:string;
-  name:string;
-  role:string;
-  description:string;
-}
-
-export type PublicData = {
-  roles: RolePublicData[];
-  scene: string;
+  roles: RoleMap;
 }
   
 export type Data = {

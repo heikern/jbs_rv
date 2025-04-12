@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import gameReducer from './gameSlice';
 import firebaseReducer from './firebaseSlice';
+import scriptReducer from './scriptSlice'; // Added scriptReducer
 
 export const store = configureStore({
   reducer: {
     game: gameReducer,
     firebase: firebaseReducer,
+    scripts: scriptReducer, // Added scriptReducer
   }
 });
 
