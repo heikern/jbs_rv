@@ -1,25 +1,19 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import TopBar from '@/components/TopBar';
 import BottomBar from '@/components/BottomBar';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchPublicDataByStoryId } from '@/store/firebaseSlice';
+import { useSelector } from 'react-redux';
 import { useRoom } from '@/contexts/RoomContext';
-import { Skeleton } from "@/components/ui/skeleton"
 import { inGamePages } from '@/types/gamePages';
 import Scene from '@/components/Scene';
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-import { AppDispatch } from '@/store';
-
 const GamePage: React.FC = () => {
   const room = useRoom();
   const playerSessionId = room?.sessionId;
-  const dispatch = useDispatch<AppDispatch>();
   const playerStateArray = useSelector((state: any) => state.game.playerStateArray);
   const player = playerStateArray.find((player: any) => player.playerSessionId === playerSessionId);
   const playerRoleId = player?.playerRoleId;
   const storyTitle = useSelector((state: any) => state.game.storyMetadata.title);
-  const storyId = useSelector((state: any) => state.game.storyMetadata.id);
 
 
   const [currentPage, setCurrentPage] = React.useState<inGamePages>(inGamePages.scene);
