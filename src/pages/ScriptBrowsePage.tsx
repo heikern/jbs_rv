@@ -22,7 +22,7 @@ const ScriptBrowsePage: React.FC = () => {
         {error && <p className="text-red-500">Error: {error}</p>}
       </div>
       <div className="flex-1 overflow-y-auto px-8">
-        <StoryList onCreateGame={()=>{}} numPlayers={-1}/>
+        <StoryList onCreateGame={()=>{}} numPlayers={null}/>
       </div>
     </div>
   );
