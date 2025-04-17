@@ -36,6 +36,7 @@ export default function CreateGamePage() {
 	async function handleCreateGame(storyId: string) {
 		console.log("Creating game with storyId: ", storyId);
 		const room = await createRoom("my_room", {storyId: storyId});
+		console.log("Room object:", room);
 		setEnterLobby(room);
 	}
 
