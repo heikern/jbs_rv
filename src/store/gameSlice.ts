@@ -8,7 +8,8 @@ interface storyMetadata {
     numberOfPlayers: number | null;
 }
 
-interface playerState {
+export interface playerState {
+    playerToken: string | null;
     playerSessionId: string | null;
     playerName: string | null;
     playerRoleId: string | null;
@@ -16,7 +17,7 @@ interface playerState {
   }
 
 interface gameState {
-    hostSessionId: string | null; 
+    hostPlayerToken: string | null; 
     gameState: GameStateEnum; // new state field
     playerStateArray: playerState[]; // new state field
     storyMetadata: storyMetadata;
@@ -24,7 +25,7 @@ interface gameState {
 
 // Create a function for a fresh initial state each time
 const getInitialState = (): gameState => ({
-  hostSessionId: null,
+  hostPlayerToken: null,
   gameState: GameStateEnum.default,
   playerStateArray: [],
   storyMetadata: {
@@ -42,8 +43,8 @@ const gameSlice = createSlice({
   initialState,
   reducers: {
     updateRoomState: (state, action: PayloadAction<any>) => {
-      if ("hostSessionId" in action.payload) {
-        state.hostSessionId = action.payload.hostSessionId;
+      if ("currentHostToken" in action.payload) {
+        state.hostPlayerToken = action.payload.currentHostToken;
       }
 
       if ("gameState" in action.payload) {
@@ -52,20 +53,22 @@ const gameSlice = createSlice({
 
     },
     updatePlayerState: (state, action: PayloadAction<any>) => {
-      const {playerSessionId, updatedState} = action.payload;
-      const playerIndex = state.playerStateArray.findIndex((player) => player.playerSessionId === playerSessionId);
+      const {playerToken, updatedState} = action.payload;
+      const playerIndex = state.playerStateArray.findIndex((player) => player.playerToken === playerToken);
       if (playerIndex === -1) {
         state.playerStateArray.push({
-          playerSessionId: playerSessionId,
+          playerToken: playerToken,
+          playerSessionId: updatedState.playerSessionId,
           playerName: updatedState.playerName,
-          playerRoleId: updatedState.playerRole,
+          playerRoleId: updatedState.playerRoleId,
           isReady: updatedState.isReady,
         })
       } else {
         state.playerStateArray[playerIndex] = {
-          playerSessionId: playerSessionId,
+          playerToken: playerToken,
+          playerSessionId: updatedState.playerSessionId,
           playerName: updatedState.playerName,
-          playerRoleId: updatedState.playerRole,
+          playerRoleId: updatedState.playerRoleId,
           isReady: updatedState.isReady,
         }
       }
@@ -79,7 +82,7 @@ const gameSlice = createSlice({
     },
     removePlayerState: (state, action: PayloadAction<any>) => {
       state.playerStateArray = state.playerStateArray.filter(
-        (player) => player.playerSessionId !== action.payload
+        (player) => player.playerToken !== action.payload
       );
       console.log("Removed player session:", action.payload);
     },

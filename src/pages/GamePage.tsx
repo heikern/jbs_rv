@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { useRoom } from '@/contexts/RoomContext';
 import { inGamePages } from '@/types/gamePages';
 import Scene from '@/components/Scene';
+import PersonalStory from '@/components/PersonalStory';
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 const GamePage: React.FC = () => {
@@ -23,7 +24,7 @@ const GamePage: React.FC = () => {
       case inGamePages.scene:
         return <Scene/>;
       case inGamePages.roleScript:
-        return <h1>Role Script</h1>;
+        return <PersonalStory/>;
       default:
         return <h1>Scene</h1>;
     }

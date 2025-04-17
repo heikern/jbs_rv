@@ -16,32 +16,38 @@ import { useNavigate } from 'react-router-dom';
 const LobbyPage: React.FC = () => {
   const room = useRoom();
   const sessionId = room?.sessionId;
-  const hostSessionId = useSelector((state: any) => state.game.hostSessionId);
   const storyTitle = useSelector((state: any) => state.game.storyMetadata.title);
   const playerStateArray = useSelector((state: any) => state.game.playerStateArray);
   const gameState = useSelector((state: any) => state.game.gameState);
   const playerState = playerStateArray.find((player: any) => player.playerSessionId === sessionId);
   const numPlayers = useSelector((state: any) => state.game.storyMetadata.numberOfPlayers);
   const navigate = useNavigate();
+  const playerToken = localStorage.getItem("playerToken");
 
   console.log("numPlayers: ",numPlayers)
   console.log("playerState Array: ",playerStateArray)
 
 
   useEffect(()=>{
+    console.log("sessionId: ", sessionId)
     console.log("playerState: ", playerState)
     console.log("gameState: ", gameState)
     console.log("playerState Array in useEffect: ",playerStateArray)
-    if (gameState === "InGame"){
+    const allRolesAssigned = playerStateArray.every((player: any) => player.playerRoleId !== undefined);
+    console.log("allRolesAssigned: ", allRolesAssigned)
+    if (gameState === "InGame" && allRolesAssigned) {
+      console.log("Game state is now InGame, and all roles assigned navigating to game page...");
       navigate('/game')
     }
   },[playerStateArray,gameState])
   
   const handleSubmit = (name: string) => {
-    if (room){
-      setServerPlayerName(room,name);
-      if (room?.sessionId === hostSessionId){
-        setPlayerIsReady(room, true)
+    const playerToken = localStorage.getItem("playerToken");
+    console.log("extract playerToken from localStorage: ", playerToken)
+    if (room && playerToken) {
+      setServerPlayerName(room, playerToken, name);
+      if (room?.state.currentHostToken === playerToken){
+        setPlayerIsReady(room, playerToken, true)
         }
     }
     console.log("player name: ", name)
@@ -50,11 +56,17 @@ const LobbyPage: React.FC = () => {
 
   const handleStartGame = () => {
     setStartGame(room)
-    setRandomizeRoles(room)
+    if (room && playerToken) {
+      setRandomizeRoles(room, playerToken)
+    }
   }
 
   const handleIsReady = () => {
-    setPlayerIsReady(room, true)
+    const playerToken = localStorage.getItem("playerToken");
+    if (room && playerToken) {
+      setPlayerIsReady(room, playerToken, true);
+    }
+
     console.log("Player is ready")  
   }
 
@@ -77,7 +89,7 @@ const LobbyPage: React.FC = () => {
           </div>
         )}
       </div>
-      {room?.sessionId === hostSessionId ? <Button 
+      {room?.state.currentHostToken === playerToken ? <Button 
           className="w-20 flex justify-center items-center mx-auto"
           onClick={handleStartGame}
           disabled={playerStateArray.length !== numPlayers || playerStateArray.some((player: any) =>  player.isReady === false)}

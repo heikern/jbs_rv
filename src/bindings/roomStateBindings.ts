@@ -4,9 +4,9 @@ import { updateRoomState } from "@/store/gameSlice";
 async function roomStateBinding(room: Room<any>, dispatch: any) {
     const callbacks = await getStateCallbacks(room);
 
-    callbacks(room.state).listen("currentHost", (currentValue, previousValue) => {
+    callbacks(room.state).listen("currentHostToken", (currentValue, previousValue) => {
         console.log(`Host is now ${currentValue}, was ${previousValue}`);
-        dispatch(updateRoomState({ hostSessionId: currentValue }));
+        dispatch(updateRoomState({ currentHostToken: currentValue }));
     });
 
     callbacks(room.state).listen("gameState", (currentValue, previousValue) => {

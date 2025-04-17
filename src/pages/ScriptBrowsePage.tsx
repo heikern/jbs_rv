@@ -1,20 +1,28 @@
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import type { RootState } from '../store';
 import StoryList from '@/components/StoryList';
 import TopBar from '@/components/TopBar';
 import {setEnterLobby} from "@/colyseus/messageLib";
 import { useRoomContext } from "@/contexts/RoomContext";
+import { GameStateEnum } from "@/types/gameStates";
+import { useNavigate } from 'react-router-dom';
 
 const ScriptBrowsePage: React.FC = () => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {createRoom} = useRoomContext()
   const { loading, error } = useSelector((state: RootState) => state.firebase);
 
+  // Subscribe to the game state from Redux
+  const gameState = useSelector((state: any) => state.game.gameState);
+
   useEffect(() => {
       // On loading the page, set numPlayers to null
-    }, [dispatch]);
+    if (gameState === GameStateEnum.Lobby) {
+                console.log("Game state is now lobby, navigating...");
+                navigate("/lobby");
+            }
+    }, [gameState, navigate]);
 
   async function handleCreateGame(storyId: string) {
       console.log("Creating game with storyId: ", storyId);

@@ -8,11 +8,11 @@ import { Room } from 'colyseus.js';
 export async function setUpAllBingings(room: Room<any>, dispatch: any){
     room.onStateChange.once(()=>{
         const plainMetadata = JSON.parse(JSON.stringify((room.state as any).storyMetadata));
-        const currentHost = JSON.parse(JSON.stringify(room.state.currentHost));
+        const currentHostToken = JSON.parse(JSON.stringify(room.state.currentHostToken));
         console.log("plainMetadata: ", plainMetadata);
-        console.log("currentHost: ", currentHost);
+        console.log("currentHostToken: ", currentHostToken);
         dispatch(updateRoomMetaData(plainMetadata));
-        dispatch(updateRoomState({ hostSessionId: currentHost }));
+        dispatch(updateRoomState({ hostPlayerToken: currentHostToken }));
         
     })
     setupGameBindings(room, dispatch);

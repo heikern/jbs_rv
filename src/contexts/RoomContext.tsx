@@ -4,6 +4,7 @@ import { client } from '../colyseus/colyseusClient';
 import { useDispatch } from 'react-redux';
 import { setUpAllBingings } from '@/bindings/allBindings';
 import { resetGameState } from '@/store/gameSlice';
+import { registerRoomMessageHandlers } from '@/colyseus/messageLib';
 
 type RoomType = Room<any>;
 
@@ -36,6 +37,9 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 		const room = await client.create(roomName, options);
 		console.log("createRoom reconnectionToken: ", room.reconnectionToken);
 		localStorage.setItem("reconnectionToken", room.reconnectionToken);
+
+		registerRoomMessageHandlers(room);
+
 		await setUpAllBingings(room, dispatch);
 		roomRef.current = room;
 		attachOnLeaveHandler(room);
@@ -46,6 +50,9 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 		const room = await client.joinById(roomId);
 		console.log("joinRoom reconnectionToken: ", room.reconnectionToken);
 		localStorage.setItem("reconnectionToken", room.reconnectionToken);
+
+		registerRoomMessageHandlers(room);
+
 		await setUpAllBingings(room, dispatch);
 		roomRef.current = room;
 		attachOnLeaveHandler(room);
@@ -55,28 +62,52 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 
 	// Attempt to reconnect using the stored reconnection token
 	const reconnectRoom = async (): Promise<RoomType | null> => {
-	console.log("Entered reconnectRoom");
-	const reconnectionToken = localStorage.getItem("reconnectionToken");
-	if (reconnectionToken) {
-		console.log("Reconnection token found:", reconnectionToken);
-		try {
-		const room = await client.reconnect(reconnectionToken);
-		console.log("reconnectionToken: ", room.reconnectionToken);
-		localStorage.setItem("reconnectionToken", room.reconnectionToken);
-		roomRef.current = room;
-		await setUpAllBingings(room, dispatch);
-		attachOnLeaveHandler(room);
-		console.log("Reconnected to room:", room.roomId);
-		return room;
-		} catch (error) {
-		console.error("Failed to reconnect. Leaving room:", error);
+		console.log("Entered reconnectRoom");
+		const reconnectionToken = localStorage.getItem("reconnectionToken");
 
+		if (reconnectionToken) {
+			console.log("Reconnection token found:", reconnectionToken);
+			try {
+			const room = await client.reconnect(reconnectionToken);
+			console.log("reconnectionToken: ", room.reconnectionToken);
+			localStorage.setItem("reconnectionToken", room.reconnectionToken);
+			registerRoomMessageHandlers(room);
+			roomRef.current = room;
+			await setUpAllBingings(room, dispatch);
+			attachOnLeaveHandler(room);
+			console.log("Reconnected to room:", room.roomId);
+			return room;
+			} catch (error) {
+			console.error("Failed to reconnect. Leaving room:", error);
+
+			await leaveRoom();
+			return null;
+			}
+		}
+
+		const playerToken = localStorage.getItem("playerToken");
+		if (playerToken){
+			try{
+				const room = await client.join("my_room",{playerToken: playerToken});
+				console.log("Joined room using playerToken:", room.roomId);
+				localStorage.setItem("reconnectionToken", room.reconnectionToken);
+				registerRoomMessageHandlers(room);
+				await setUpAllBingings(room, dispatch);
+				roomRef.current = room;
+				attachOnLeaveHandler(room);
+				return room;
+			} catch (error) {
+				console.error("Failed to join room using playerToken:", error);
+			}
+			
+		}
+
+		// If neither token is available or both attempts failed
+		console.log("No valid tokens available for reconnection.");
+		localStorage.removeItem("reconnectionToken");
+		localStorage.removeItem("playerToken");
 		await leaveRoom();
 		return null;
-		}
-	}
-	console.log("No reconnection token found.");
-	return null;
 	};
 
 	const leaveRoom = async () => {
