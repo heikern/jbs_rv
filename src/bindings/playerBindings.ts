@@ -62,30 +62,60 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
       dispatch(removePlayerState(playerToken))
     });
 
-    // Check if room.state.players exists before iterating
-    const players = room.state.playersByToken || {};
-    
-    Object.entries(players)
-    .filter(([playerToken, _]) => {
-        // Skip known internal keys
-        return !["$items", "$indexes", "deletedItems"].includes(playerToken);
-      })
-    .forEach(([playerToken, player]) => {
-            const typedPlayer = player as { 
-                                            playerSessionId: string;
-                                            playerName: string; 
-                                            playerRoleId: string; 
-                                            isReady: boolean;  };
-            const updatedPlayerState = {
-                playerSessionId: typedPlayer.playerSessionId,
-                playerName: typedPlayer.playerName,
-                playerRoleId: typedPlayer.playerRoleId,
-                isReady: typedPlayer.isReady,
-            };
+    // Explicitly rehydrate the current state of playersByToken
+    console.log("Rehydrating playersByToken...");
+    room.state.playersByToken.forEach((player: any, playerToken: string) => {
+        const updatedPlayerState = {
+            playerSessionId: player.sessionId,
+            playerName: player.playerName,
+            playerRoleId: player.playerRoleId,
+            isReady: player.isReady,
+        };
+
         dispatch(updatePlayerState({
             updatedState: updatedPlayerState,
             playerToken: playerToken
         }));
+
+        // Set up change listeners for each player
+        callbacks(player).onChange(() => {
+            const updatedPlayerState = {
+                playerSessionId: player.sessionId,
+                playerName: player.playerName,
+                playerRoleId: player.playerRoleId,
+                isReady: player.isReady,
+            };
+            dispatch(updatePlayerState({
+                updatedState: updatedPlayerState,
+                playerToken: playerToken
+            }));
+        });
     });
+
+    // // Check if room.state.players exists before iterating
+    // const players = room.state.playersByToken || {};
+    
+    // Object.entries(players)
+    // .filter(([playerToken, _]) => {
+    //     // Skip known internal keys
+    //     return !["$items", "$indexes", "deletedItems"].includes(playerToken);
+    //   })
+    // .forEach(([playerToken, player]) => {
+    //         const typedPlayer = player as { 
+    //                                         playerSessionId: string;
+    //                                         playerName: string; 
+    //                                         playerRoleId: string; 
+    //                                         isReady: boolean;  };
+    //         const updatedPlayerState = {
+    //             playerSessionId: typedPlayer.playerSessionId,
+    //             playerName: typedPlayer.playerName,
+    //             playerRoleId: typedPlayer.playerRoleId,
+    //             isReady: typedPlayer.isReady,
+    //         };
+    //     dispatch(updatePlayerState({
+    //         updatedState: updatedPlayerState,
+    //         playerToken: playerToken
+    //     }));
+    // });
 
 }
