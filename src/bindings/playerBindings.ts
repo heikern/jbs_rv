@@ -1,11 +1,24 @@
 // gameBindings.ts
 import { Room, getStateCallbacks } from "colyseus.js";
 import { updatePlayerState,  removePlayerState} from "../store/gameSlice";
+import { MapSchema } from "@colyseus/schema";
 
 // You can refine the type of Room's state if available.
 export function setupGameBindings(room: Room<any>, dispatch: any): void {
   
     const callbacks = getStateCallbacks(room);
+
+    // Ensure playersByToken exists before binding listeners
+    if (!room.state.playersByToken || !(room.state.playersByToken instanceof MapSchema)) {
+      console.warn("playersByToken is not initialized yet. Waiting for state update...");
+      room.onStateChange.once((state) => {
+          if (state.playersByToken && state.playersByToken instanceof MapSchema) {
+            console.log("playersByToken initialized after await.");
+              setupGameBindings(room, dispatch); // Reinitialize bindings
+          }
+      });
+      return;
+  }
 
     // Bind listener for players being added.
     callbacks(room.state).playersByToken.onAdd((player: any, playerToken: string) => {

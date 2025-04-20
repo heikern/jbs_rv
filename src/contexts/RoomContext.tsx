@@ -39,8 +39,9 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({children}) => {
 		localStorage.setItem("reconnectionToken", room.reconnectionToken);
 
 		registerRoomMessageHandlers(room);
-
+		console.log("setting up all bindings");
 		await setUpAllBingings(room, dispatch);
+		console.log("binding successful")
 		roomRef.current = room;
 		attachOnLeaveHandler(room);
 		return room
