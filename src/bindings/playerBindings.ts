@@ -8,17 +8,22 @@ export function setupGameBindings(room: Room<any>, dispatch: any): void {
   
     const callbacks = getStateCallbacks(room);
 
+    console.log("Initial room.state:", room.state);
+
     // Ensure playersByToken exists before binding listeners
     if (!room.state.playersByToken || !(room.state.playersByToken instanceof MapSchema)) {
-      console.warn("playersByToken is not initialized yet. Waiting for state update...");
-      room.onStateChange.once((state) => {
-          if (state.playersByToken && state.playersByToken instanceof MapSchema) {
-            console.log("playersByToken initialized after await.");
+        console.warn("playersByToken is not initialized yet. Waiting for state update...");
+        
+        room.onStateChange.once((state) => {
+            if (state.playersByToken && state.playersByToken instanceof MapSchema) {
+              console.log("playersByToken initialized after await.");
               setupGameBindings(room, dispatch); // Reinitialize bindings
-          }
-      });
-      return;
-  }
+            }
+        });
+        return;
+    }
+
+    console.log("playersByToken is initialized and ready.");
 
     // Bind listener for players being added.
     callbacks(room.state).playersByToken.onAdd((player: any, playerToken: string) => {
